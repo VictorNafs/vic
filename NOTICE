@@ -2,8 +2,10 @@ NOTICE
 
 This project uses the `.vic` file format developed by Victor Duprez.
 
-Redistribution and use of this software in source and binary forms must include:
-- Attribution to Victor Duprez as the original author.
-- Preservation of compatibility with the `.vic` format where applicable.
+Redistribution and use of this software in source or binary forms must:
+- Encourage attribution to Victor Duprez as the original creator of the `.vic` file format.
+- Preserve compatibility with the `.vic` format specifications where applicable.
 
-The `.vic` file format is intended for full-page screenshots with smooth scrolling and automatic width adaptation.
+The `.vic` file format is designed for full-page screenshots with smooth vertical scrolling and automatic width adaptation, providing an optimized user experience.
+
+For commercial use or integration into proprietary systems, please contact cmoikvolelorange.com to obtain a license.
