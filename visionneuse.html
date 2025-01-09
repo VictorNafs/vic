@@ -13,14 +13,19 @@
       align-items: center;
     }
     #image-container {
-      max-width: 100%;
-      overflow-y: auto;
+      width: 100%; /* Allow the container to take full width */
+      display: flex;
+      justify-content: center; /* Center the image horizontally */
+      background-color: #f9f9f9;
+      overflow-y: auto; /* Enable scrolling for large images */
     }
+
     img {
-      display: block;
       max-width: 100%;
-      height: auto;
+      height: auto; /* Maintain aspect ratio */
+      display: block;
     }
+
     #metadata {
       margin-top: 20px;
       padding: 10px;
@@ -60,8 +65,8 @@
         const version = data.getUint8(3);
 
         // Read dimensions
-        const width = data.getUint32(4, true);
-        const height = data.getUint32(8, true);
+        const originalWidth = data.getUint32(4, true);
+        const originalHeight = data.getUint32(8, true);
 
         // Read metadata
         const metadataSize = data.getUint32(12, true);
@@ -71,28 +76,35 @@
           new TextDecoder().decode(new Uint8Array(reader.result, metadataStart, metadataSize))
         );
 
-        // Read image WebP data
-        const imgDataSize = data.getUint32(metadataEnd, true);
-        const imgStart = metadataEnd + 4;
-        const imgBlob = new Blob([new Uint8Array(reader.result, imgStart, imgDataSize)], {
-          type: "image/webp",
-        });
-
-        // Display the image
-        const imgContainer = document.getElementById("image-container");
-        const img = new Image();
-        img.src = URL.createObjectURL(imgBlob);
-        imgContainer.innerHTML = "";
-        imgContainer.appendChild(img);
-
         // Display metadata
         const metadataDiv = document.getElementById("metadata");
         metadataDiv.innerHTML = `
           <h3>Metadata</h3>
           <p>Version: ${version}</p>
-          <p>Dimensions: ${width}x${height}</p>
+          <p>Original Dimensions: ${originalWidth}x${originalHeight}</p>
+          <p>Adjusted Dimensions: ${metadata.dimensions.width}x${metadata.dimensions.height}</p>
           <p>Options: ${JSON.stringify(metadata, null, 2)}</p>
         `;
+
+        // Read image PNG data
+        const imgDataSize = data.getUint32(metadataEnd, true);
+        const imgStart = metadataEnd + 4;
+        const imgBlob = new Blob(
+          [new Uint8Array(reader.result, imgStart, imgDataSize)],
+          { type: "image/png" }
+        );
+
+        // Display the image
+        const imgContainer = document.getElementById("image-container");
+        imgContainer.innerHTML = ""; // Clear previous content
+        const img = new Image();
+        img.src = URL.createObjectURL(imgBlob);
+        img.style.display = "block";
+        img.style.maxWidth = "100%";
+        img.style.height = "auto"; // Maintain aspect ratio
+        imgContainer.appendChild(img);
+
+        console.log("Image rendering completed.");
       };
 
       reader.readAsArrayBuffer(file);
