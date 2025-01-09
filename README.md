@@ -45,6 +45,8 @@ python convert_to_my_format.py input.png output.vic
 - `--max_width`: Maximum image width (default: 2000 pixels).
 - `--max_height`: Maximum image height (default: 2000 pixels).
 
+The script automatically detects if the image is a full-page screenshot. If `--max_width` and `--max_height` are not provided, the dimensions will adjust automatically to fit the screen or the .vic format requirements.
+
 ### 2. Graphical User Interface (GUI)
 
 The `convert_gui.py` script provides a simple GUI for file conversion.
