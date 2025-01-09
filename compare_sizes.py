@@ -1,9 +1,9 @@
 import os
 
-original_size = os.path.getsize("img2.png")
-converted_size = os.path.getsize("img2.myft")
+original_size = os.path.getsize("example.png")
+converted_size = os.path.getsize("example.vic")
 
-print(f"Taille originale : {original_size} octets")
-print(f"Taille convertie : {converted_size} octets")
+print(f"Original size: {original_size} bytes")
+print(f"Converted size: {converted_size} bytes")
 reduction = (1 - converted_size / original_size) * 100
-print(f"Réduction de taille : {reduction:.2f}%")
+print(f"Size reduction: {reduction:.2f}%")

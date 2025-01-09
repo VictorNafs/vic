@@ -2,7 +2,7 @@ def read_my_format(file_path):
     with open(file_path, 'rb') as f:
         # 1. Lire la signature
         signature = f.read(4)
-        if signature != b"MYFT":
+        if signature != b"VIC":
             raise ValueError("Fichier invalide ou signature non reconnue.")
 
         # 2. Lire la version

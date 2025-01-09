@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MYFT Visionneuse</title>
+  <title>VIC Viewer</title>
   <style>
     body {
       margin: 0;
@@ -18,7 +18,7 @@
     }
     img {
       display: block;
-      max-width: 100%; /* S'adapte à la largeur de l'écran */
+      max-width: 100%;
       height: auto;
     }
     #metadata {
@@ -31,8 +31,8 @@
   </style>
 </head>
 <body>
-  <h1>MYFT Visionneuse</h1>
-  <input type="file" id="fileInput" accept=".myft" />
+  <h1>VIC Viewer</h1>
+  <input type="file" id="fileInput" accept=".vic" />
   <div id="image-container"></div>
   <div id="metadata"></div>
 
@@ -45,55 +45,53 @@
       reader.onload = function () {
         const data = new DataView(reader.result);
 
-        // Lire la signature
+        // Read signature
         const signature = String.fromCharCode(
           data.getUint8(0),
           data.getUint8(1),
-          data.getUint8(2),
-          data.getUint8(3)
+          data.getUint8(2)
         );
-        if (signature !== "MYFT") {
-          alert("Fichier invalide !");
+        if (signature !== "VIC") {
+          alert("Invalid file!");
           return;
         }
 
-        // Lire la version
-        const version = data.getUint8(4);
+        // Read version
+        const version = data.getUint8(3);
 
-        // Lire les dimensions
-        const width = data.getUint32(5, true); // Little endian
-        const height = data.getUint32(9, true); // Little endian
+        // Read dimensions
+        const width = data.getUint32(4, true);
+        const height = data.getUint32(8, true);
 
-        // Lire les métadonnées
-        const metadataSize = data.getUint32(13, true);
-        const metadataStart = 17;
+        // Read metadata
+        const metadataSize = data.getUint32(12, true);
+        const metadataStart = 16;
         const metadataEnd = metadataStart + metadataSize;
         const metadata = JSON.parse(
           new TextDecoder().decode(new Uint8Array(reader.result, metadataStart, metadataSize))
         );
 
-        // Lire l'image WebP
+        // Read image WebP data
         const imgDataSize = data.getUint32(metadataEnd, true);
         const imgStart = metadataEnd + 4;
-        const imgEnd = imgStart + imgDataSize;
         const imgBlob = new Blob([new Uint8Array(reader.result, imgStart, imgDataSize)], {
           type: "image/webp",
         });
 
-        // Afficher l'image
+        // Display the image
         const imgContainer = document.getElementById("image-container");
         const img = new Image();
         img.src = URL.createObjectURL(imgBlob);
-        imgContainer.innerHTML = ""; // Effacer tout contenu précédent
+        imgContainer.innerHTML = "";
         imgContainer.appendChild(img);
 
-        // Afficher les métadonnées
+        // Display metadata
         const metadataDiv = document.getElementById("metadata");
         metadataDiv.innerHTML = `
-          <h3>Métadonnées</h3>
-          <p>Version : ${version}</p>
-          <p>Dimensions : ${width}x${height}</p>
-          <p>Options : ${JSON.stringify(metadata, null, 2)}</p>
+          <h3>Metadata</h3>
+          <p>Version: ${version}</p>
+          <p>Dimensions: ${width}x${height}</p>
+          <p>Options: ${JSON.stringify(metadata, null, 2)}</p>
         `;
       };
 

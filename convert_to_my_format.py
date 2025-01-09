@@ -25,7 +25,7 @@ def convert_to_my_format(input_file, output_file, quality=75, max_width=2000, ma
 
     # Construire le fichier binaire
     with open(output_file, 'wb') as f:
-        f.write(b"MYFT")  # Signature
+        f.write(b"VIC")  # Signature corrigée
         f.write(struct.pack('B', 1))  # Version
         f.write(struct.pack('II', width, height))  # Dimensions
         f.write(struct.pack('I', len(metadata_json)))  # Taille des métadonnées
@@ -38,9 +38,9 @@ def convert_to_my_format(input_file, output_file, quality=75, max_width=2000, ma
 
 # Interface en ligne de commande
 def main():
-    parser = argparse.ArgumentParser(description="Convertir une image PNG en format MYFT.")
+    parser = argparse.ArgumentParser(description="Convertir une image PNG en format VIC.")
     parser.add_argument("input_file", help="Chemin du fichier d'entrée (PNG).")
-    parser.add_argument("output_file", help="Chemin du fichier de sortie (MYFT).")
+    parser.add_argument("output_file", help="Chemin du fichier de sortie (VIC).")
     parser.add_argument("--quality", type=int, default=75, help="Qualité de compression WebP (par défaut : 75).")
     parser.add_argument("--max_width", type=int, default=2000, help="Largeur maximale (par défaut : 2000 pixels).")
     parser.add_argument("--max_height", type=int, default=2000, help="Hauteur maximale (par défaut : 2000 pixels).")
