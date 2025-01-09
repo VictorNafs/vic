@@ -1,15 +1,10 @@
+import argparse
 import struct
 import json
-from PIL import Image, ImageOps  # Importer Image et ImageOps
+from PIL import Image, ImageOps
 import io
 
-
 def convert_to_my_format(input_file, output_file, quality=75, max_width=2000, max_height=2000):
-    # Vérifier que l'entrée est un fichier PNG
-    if not input_file.endswith(".png"):
-        raise ValueError("Seuls les fichiers PNG sont acceptés pour le moment.")
-
-    # Ouvrir l'image source
     with Image.open(input_file) as img:
         width, height = img.size
 
@@ -18,43 +13,41 @@ def convert_to_my_format(input_file, output_file, quality=75, max_width=2000, ma
             print(f"Redimensionnement : {width}x{height} vers {max_width}x{max_height}")
             img = ImageOps.contain(img, (max_width, max_height))
 
-        # Convertir l'image en WebP compressé (dans un buffer mémoire)
+        # Convertir l'image en WebP compressé
         webp_buffer = io.BytesIO()
-        img.save(webp_buffer, format="WEBP", quality=quality)  # Compression WebP
-        img_data = webp_buffer.getvalue()  # Récupérer les données compressées
+        img.save(webp_buffer, format="WEBP", quality=quality)
+        img_data = webp_buffer.getvalue()
         webp_buffer.close()
 
-    # Construire la section de métadonnées
-    metadata = {
-        "scroll": "vertical",
-        "width": "screen"
-    }
-    metadata_json = json.dumps(metadata).encode('utf-8')  # Convertir en JSON binaire
+    # Construire les métadonnées
+    metadata = {"scroll": "vertical", "width": "screen"}
+    metadata_json = json.dumps(metadata).encode('utf-8')
 
     # Construire le fichier binaire
     with open(output_file, 'wb') as f:
-        # 1. Signature
-        f.write(b"MYFT")
-        # 2. Version
-        f.write(struct.pack('B', 1))  # Version 1
-        # 3. Dimensions
-        f.write(struct.pack('II', width, height))  # Largeur et hauteur (4 octets chacun)
-        # 4. Métadonnées
+        f.write(b"MYFT")  # Signature
+        f.write(struct.pack('B', 1))  # Version
+        f.write(struct.pack('II', width, height))  # Dimensions
         f.write(struct.pack('I', len(metadata_json)))  # Taille des métadonnées
-        f.write(metadata_json)  # Les métadonnées elles-mêmes
-        # 5. Données de l'image
+        f.write(metadata_json)  # Métadonnées
         f.write(struct.pack('I', len(img_data)))  # Taille des données d'image
-        f.write(img_data)  # Les données compressées en WebP
-        # 6. Fin du fichier
-        f.write(b"EOF\0")
+        f.write(img_data)  # Données de l'image
+        f.write(b"EOF\0")  # Fin de fichier
 
-    # Informations de confirmation
     print(f"Conversion terminée : {output_file}")
-    print(f"Dimensions originales : {width}x{height}")
-    print(f"Dimensions redimensionnées : {img.size}")
-    print(f"Taille des métadonnées : {len(metadata_json)} octets")
-    print(f"Taille des données compressées (WebP) : {len(img_data)} octets")
 
+# Interface en ligne de commande
+def main():
+    parser = argparse.ArgumentParser(description="Convertir une image PNG en format MYFT.")
+    parser.add_argument("input_file", help="Chemin du fichier d'entrée (PNG).")
+    parser.add_argument("output_file", help="Chemin du fichier de sortie (MYFT).")
+    parser.add_argument("--quality", type=int, default=75, help="Qualité de compression WebP (par défaut : 75).")
+    parser.add_argument("--max_width", type=int, default=2000, help="Largeur maximale (par défaut : 2000 pixels).")
+    parser.add_argument("--max_height", type=int, default=2000, help="Hauteur maximale (par défaut : 2000 pixels).")
 
-# Exemple d'utilisation
-convert_to_my_format("img2.png", "img2.myft")
+    args = parser.parse_args()
+
+    convert_to_my_format(args.input_file, args.output_file, args.quality, args.max_width, args.max_height)
+
+if __name__ == "__main__":
+    main()
