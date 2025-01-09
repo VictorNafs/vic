@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MYFT Visionneuse</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #image-container {
+      max-width: 100%;
+      overflow-y: auto;
+    }
+    img {
+      display: block;
+      max-width: 100%; /* S'adapte à la largeur de l'écran */
+      height: auto;
+    }
+    #metadata {
+      margin-top: 20px;
+      padding: 10px;
+      background: #f0f0f0;
+      border-radius: 5px;
+      width: 90%;
+    }
+  </style>
+</head>
+<body>
+  <h1>MYFT Visionneuse</h1>
+  <input type="file" id="fileInput" accept=".myft" />
+  <div id="image-container"></div>
+  <div id="metadata"></div>
+
+  <script>
+    document.getElementById('fileInput').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function () {
+        const data = new DataView(reader.result);
+
+        // Lire la signature
+        const signature = String.fromCharCode(
+          data.getUint8(0),
+          data.getUint8(1),
+          data.getUint8(2),
+          data.getUint8(3)
+        );
+        if (signature !== "MYFT") {
+          alert("Fichier invalide !");
+          return;
+        }
+
+        // Lire la version
+        const version = data.getUint8(4);
+
+        // Lire les dimensions
+        const width = data.getUint32(5, true); // Little endian
+        const height = data.getUint32(9, true); // Little endian
+
+        // Lire les métadonnées
+        const metadataSize = data.getUint32(13, true);
+        const metadataStart = 17;
+        const metadataEnd = metadataStart + metadataSize;
+        const metadata = JSON.parse(
+          new TextDecoder().decode(new Uint8Array(reader.result, metadataStart, metadataSize))
+        );
+
+        // Lire l'image WebP
+        const imgDataSize = data.getUint32(metadataEnd, true);
+        const imgStart = metadataEnd + 4;
+        const imgEnd = imgStart + imgDataSize;
+        const imgBlob = new Blob([new Uint8Array(reader.result, imgStart, imgDataSize)], {
+          type: "image/webp",
+        });
+
+        // Afficher l'image
+        const imgContainer = document.getElementById("image-container");
+        const img = new Image();
+        img.src = URL.createObjectURL(imgBlob);
+        imgContainer.innerHTML = ""; // Effacer tout contenu précédent
+        imgContainer.appendChild(img);
+
+        // Afficher les métadonnées
+        const metadataDiv = document.getElementById("metadata");
+        metadataDiv.innerHTML = `
+          <h3>Métadonnées</h3>
+          <p>Version : ${version}</p>
+          <p>Dimensions : ${width}x${height}</p>
+          <p>Options : ${JSON.stringify(metadata, null, 2)}</p>
+        `;
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
+  </script>
+</body>
+</html>
