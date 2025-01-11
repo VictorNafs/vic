@@ -20,8 +20,7 @@
 
 ## Structure du Projet
 
-```plaintext
-en_ligne/vic2/
+```
 ├── convert_to_my_format.py   # Outil CLI pour créer des fichiers .vic
 ├── convert_gui.py            # Interface graphique pour la conversion
 ├── compare_sizes.py          # Comparer les tailles des fichiers originaux et convertis
@@ -46,7 +45,7 @@ Le script `convert_to_my_format.py` convertit les fichiers PNG en format .vic vi
 **Utilisation :**
 
 ```bash
-python convert_to_my_format.py input.png output.vic
+python3 convert_to_my_format.py input.png output.vic
 ```
 
 **Options :**
@@ -65,7 +64,7 @@ Le script `convert_gui.py` fournit une interface graphique simple pour la conver
 
 1. Lancez l'interface graphique :
    ```bash
-   python convert_gui.py
+   python3 convert_gui.py
    ```
 2. Utilisez l'interface pour :
    - Sélectionner un fichier `.png` comme entrée.
@@ -89,7 +88,7 @@ Le script `read_my_format.py` lit et valide les fichiers `.vic`, affichant les m
 **Utilisation :**
 
 ```bash
-python read_my_format.py file.vic [--save_image]
+python3 read_my_format.py file.vic [--save_image]
 ```
 
 - Ajoutez `--save_image` pour extraire l'image PNG du fichier `.vic`.
@@ -101,7 +100,7 @@ Le script `compare_sizes.py` compare les tailles d'un fichier PNG original et de
 **Utilisation :**
 
 ```bash
-python compare_sizes.py original.png converted.vic
+python3 compare_sizes.py original.png converted.vic
 ```
 
 ---

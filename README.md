@@ -19,14 +19,15 @@
 ## Project Structure
 
 ```
-project/
 ├── convert_to_my_format.py   # CLI tool to create .vic files
-├── convert_gui.py            # GUI for file conversion
+├── convert_gui.py            # Graphical interface for file conversion
 ├── compare_sizes.py          # Compare sizes of original and converted files
-├── read_my_format.py         # Validate and read .vic file contents
-├── visionneuse.html          # HTML viewer for displaying .vic files
-├── README.md                 # Project documentation
-└── examples/                 # Example images and .vic files
+├── read_my_format.py         # Validation and reading of .vic files
+├── visionneuse.html          # HTML viewer to display .vic files
+├── LICENSE                   # Project license
+├── CONTRIBUTING.md           # Contribution guidelines
+├── CODE_OF_CONDUCT.md        # Code of conduct for contributors
+└── examples/                 # Examples of images and .vic files
     ├── example.png
     └── example.vic
 ```
@@ -40,7 +41,7 @@ The `convert_to_my_format.py` script converts PNG files into .vic format via the
 **Usage:**
 
 ```bash
-python convert_to_my_format.py input.png output.vic
+python3 convert_to_my_format.py input.png output.vic
 ```
 
 **Options:**
@@ -60,7 +61,7 @@ The `convert_gui.py` script provides a simple GUI for file conversion.
 1. Run the GUI:
 
    ```bash
-   python convert_gui.py
+   python3 convert_gui.py
    ```
 
 2. Use the interface to:
@@ -85,7 +86,7 @@ The `read_my_format.py` script reads and validates `.vic` files, displaying meta
 **Usage:**
 
 ```bash
-python read_my_format.py file.vic [--save_image]
+python3 read_my_format.py file.vic [--save_image]
 ```
 
 - Add `--save_image` to extract the PNG image from the `.vic` file.
@@ -97,7 +98,7 @@ The `compare_sizes.py` script compares the sizes of an original PNG file and its
 **Usage:**
 
 ```bash
-python compare_sizes.py original.png converted.vic
+python3 compare_sizes.py original.png converted.vic
 ```
 
 ## How to Contribute
