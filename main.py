@@ -1,15 +1,12 @@
-import os
 from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse, FileResponse, StreamingResponse, HTMLResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import StreamingResponse
+import io
+import os
 from tempfile import NamedTemporaryFile
 from convert_to_my_format import convert_to_my_format
 import struct
 import json
-import io
-
-# Chemin racine pour le projet
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 app = FastAPI()
 
@@ -100,15 +97,14 @@ async def preview_vic(file: UploadFile):
     finally:
         os.remove(temp_file_path)
 
-# Endpoint pour générer le code iframe
 @app.get("/generate-iframe")
 def generate_iframe(file_url: str):
     """
     Génère un iframe pour afficher un fichier VIC via la visionneuse hébergée.
     """
-    viewer_url = "https://dotvic.herokuapp.com/vic-viewer.html"
+    visionneuse_url = "https://votre-serveur/vic-viewer.html"
     iframe_code = f"""
-    <iframe src="{viewer_url}?file={file_url}" width="560" height="315" 
+    <iframe src="{visionneuse_url}?file={file_url}" width="560" height="315" 
     frameborder="0" allowfullscreen></iframe>
     """
     return HTMLResponse(content=iframe_code)
@@ -118,6 +114,15 @@ def generate_iframe(file_url: str):
 async def serve_viewer():
     return FileResponse("visionneuse.html")
 
-# Héberger les fichiers statiques (par exemple CSS, JS)
-static_dir = os.path.join(BASE_DIR, "heroku/static")
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
+# Endpoint pour générer le code iframe
+@app.get("/generate-iframe")
+async def generate_iframe(file_url: str):
+    viewer_url = "https://<your-heroku-app-name>.herokuapp.com/vic-viewer.html"
+    iframe_code = f"""
+    <iframe src="{viewer_url}?file={file_url}" width="560" height="315" 
+    frameborder="0" allowfullscreen></iframe>
+    """
+    return HTMLResponse(content=iframe_code)
+
+# Héberger les fichiers statiques (visionneuse et autres)
+app.mount("/static", StaticFiles(directory="static"), name="static")

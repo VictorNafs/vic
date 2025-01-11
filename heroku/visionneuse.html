@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VIC Viewer</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden; /* Pas de défilement sur la page */
+    }
+
+    #image-container {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto; /* Défilement vertical uniquement */
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; /* Aligne les images en haut */
+      background-color: #f9f9f9;
+    }
+
+    img {
+      max-width: 100%; /* S'adapte à la largeur de l'iframe */
+      height: auto;    /* Conserve le ratio d'aspect */
+      display: block;
+    }
+
+    #metadata {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f0f0f0;
+      border-radius: 5px;
+      width: 90%;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="image-container"></div>
+  <div id="metadata"></div>
+
+  <script>
+    function displayVICFile(arrayBuffer) {
+      const data = new DataView(arrayBuffer);
+
+      // Read signature
+      const signature = String.fromCharCode(
+        data.getUint8(0),
+        data.getUint8(1),
+        data.getUint8(2)
+      );
+      if (signature !== "VIC") {
+        alert("Invalid file!");
+        return;
+      }
+
+      // Read version
+      const version = data.getUint8(3);
+
+      // Read dimensions
+      const originalWidth = data.getUint32(4, true);
+      const originalHeight = data.getUint32(8, true);
+
+      // Read metadata
+      const metadataSize = data.getUint32(12, true);
+      const metadataStart = 16;
+      const metadataEnd = metadataStart + metadataSize;
+      const metadata = JSON.parse(
+        new TextDecoder().decode(new Uint8Array(arrayBuffer, metadataStart, metadataSize))
+      );
+
+      // Display metadata
+      const metadataDiv = document.getElementById("metadata");
+      metadataDiv.innerHTML = `
+        <h3>Metadata</h3>
+        <p>Version: ${version}</p>
+        <p>Original Dimensions: ${originalWidth}x${originalHeight}</p>
+        <p>Adjusted Dimensions: ${metadata.dimensions.width}x${metadata.dimensions.height}</p>
+      `;
+
+      // Read image PNG data
+      const imgDataSize = data.getUint32(metadataEnd, true);
+      const imgStart = metadataEnd + 4;
+      const imgBlob = new Blob(
+        [new Uint8Array(arrayBuffer, imgStart, imgDataSize)],
+        { type: "image/png" }
+      );
+
+      // Display the image
+      const imgContainer = document.getElementById("image-container");
+      imgContainer.innerHTML = ""; // Clear previous content
+      const img = new Image();
+      img.src = URL.createObjectURL(imgBlob);
+      img.style.display = "block";
+      img.style.maxWidth = "100%";
+      img.style.height = "auto"; // Maintain aspect ratio
+      imgContainer.appendChild(img);
+    }
+
+    function loadVICFromURL(fileUrl) {
+  fetch(`/fetch-vic?file_url=${encodeURIComponent(fileUrl)}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok.');
+      }
+      return response.arrayBuffer();
+    })
+    .then(arrayBuffer => {
+      displayVICFile(arrayBuffer);
+    })
+    .catch(error => {
+      console.error('Erreur lors du chargement du fichier VIC:', error);
+      const container = document.getElementById("image-container");
+      container.innerHTML = `<p style="color:red;">Erreur : Impossible de charger le fichier VIC. Vérifiez l'URL ou le format du fichier.</p>`;
+    });
+}
+
+
+    // Check if 'file' parameter is in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const fileUrl = urlParams.get('file');
+
+    if (fileUrl) {
+      // Load and display the VIC file from the provided URL
+      loadVICFromURL(fileUrl);
+    } else {
+      document.body.innerHTML = '<p>URL du fichier manquante</p>';
+    }
+  </script>
+</body>
+</html>
