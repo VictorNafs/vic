@@ -2,6 +2,10 @@
 
 .vic is an innovative file format designed for full-page screenshots, providing a seamless user experience with smooth vertical scrolling and automatic width adaptation for screens. This repository contains tools, documentation, and examples to help users and contributors work with the .vic format.
 
+[🇫🇷 Lire en français](README.fr.md)
+
+---
+
 ## Key Features
 
 - Convert PNG images into .vic format with optimized compression and metadata.
