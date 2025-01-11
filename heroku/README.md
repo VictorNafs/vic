@@ -50,7 +50,8 @@ The `.vic` files are designed to solve common issues encountered with full-page 
    ```bash
    git clone <repository-url>
    cd <repository-directory>
-Install Dependencies: Ensure Python 3.8+ is installed, then run:
+Install Dependencies:
+Ensure Python 3.8+ is installed, then run:
 
 bash
 Copier le code
@@ -81,7 +82,9 @@ Image format.
 Access /preview to view the image embedded in a .vic file.
 Upload a .vic file to receive a PNG image.
 2.4. Iframe Generation
-Access /generate-iframe and provide the public URL of a .vic file to generate an HTML iframe. For example:
+Access /generate-iframe and provide the public URL of a .vic file to generate an HTML iframe.
+Example:
+
 bash
 Copier le code
 http://<your-ip>:8000/generate-iframe?file_url=http://<your-ip>:8000/static/sample.vic
@@ -89,23 +92,21 @@ The API will return the following HTML code:
 
 html
 Copier le code
-<iframe src="http://<your-ip>:8000/static/vic-viewer.html?file=<file-url>" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+<iframe src="http://<your-ip>:8000/static/vic-viewer.html?file=http://<your-ip>:8000/static/sample.vic" width="560" height="315" frameborder="0" allowfullscreen></iframe>
 2.5. Conversion from a Public URL
 Access /fetch-vic and provide the URL of a public image (e.g., a Google image):
-php
+bash
 Copier le code
 http://<your-ip>:8000/fetch-vic?file_url=<image-url>
 The image will be downloaded and converted to .vic.
 3. Web Interfaces
 Detailed Viewer: visionneuse.html
-
 A feature-rich interface to display .vic files and their metadata.
 Accessible at: http://<your-ip>:8000/static/visionneuse.html.
 Iframe Viewer: vic-viewer.html
-
 A minimalist interface tailored for iframes.
 Accessible at: http://<your-ip>:8000/static/vic-viewer.html?file=<file-url>.
-Iframe Example
+4. Iframe Example
 To embed a .vic image in a website:
 
 html
@@ -117,10 +118,14 @@ Copier le code
   frameborder="0"
   allowfullscreen>
 </iframe>
-4. Important Notes
-Static Files: .vic files must be placed in the static directory to be served correctly.
-CORS: If you embed the iframe on another site, configure the CORS headers accordingly.
-5. Project Structure
+5. Important Notes
+Static Files:
+.vic files must be placed in the static directory to be served correctly.
+
+CORS:
+If you embed the iframe on another site, configure the CORS headers accordingly.
+
+6. Project Structure
 csharp
 Copier le code
 heroku/
