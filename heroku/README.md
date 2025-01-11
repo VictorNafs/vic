@@ -1,3 +1,5 @@
+[🇫🇷 Lire en français](README.fr.md)
+
 # **FastAPI - Converter and Viewer for VIC Files**
 
 This application is a **FastAPI** service designed to convert PNG images, particularly full-page screenshots, into a custom `.vic` format. This format offers unique advantages in terms of **adaptive resizing** and **iframe embedding** with smooth vertical scrolling.
