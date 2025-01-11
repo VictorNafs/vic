@@ -158,12 +158,26 @@ To embed a `.vic` image in a website:
 ## **Project Structure**
 
 ```plaintext
-project/
-├── compare_sizes.py       # Compare image dimensions
-├── convert_to_my_format.py # PNG → VIC Conversion
-├── main.py                # Main FastAPI Application
-├── read_my_format.py      # Read VIC files
-├── visionneuse.html       # Rich viewer
-└── static/
-    └── vic-viewer.html    # Minimalist iframe viewer
+FastAPI/
+├── __pycache__/               # Python cache for the project
+├── static/                    # Static files for the project
+│   ├── index.html             # HTML homepage
+│   ├── output.vic             # Example of a .vic file
+│   └── vic-viewer.html        # HTML viewer for .vic files
+├── .env                       # Environment configuration file
+├── .gitignore                 # Git exclusions
+├── compare_sizes.py           # Script to compare file sizes
+├── convert_to_my_format.py    # CLI script to convert files to .vic format
+├── linode.vic.tar.gz          # Example of a compressed .vic file
+├── main.py                    # Main application for FastAPI or Heroku
+├── output.vic.tar.gz          # Generated compressed .vic file
+├── Procfile                   # Heroku deployment specifications
+├── read_my_format.py          # Script to read and validate .vic files
+├── README.fr.md               # Documentation in French
+├── README.md                  # Documentation in English
+├── requirements.txt           # Python dependencies
+├── runtime.txt                # Python version for Heroku
+├── test1.vic                  # Test .vic file
+├── test1.vic.tar.gz           # Compressed version of the test file
+└── visionneuse.html           # Rich viewer for displaying .vic files
 ```

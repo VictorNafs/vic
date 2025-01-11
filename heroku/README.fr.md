@@ -158,12 +158,26 @@ Pour intégrer une image `.vic` dans un site web :
 ## **Structure du Projet**
 
 ```plaintext
-project/
-├── compare_sizes.py       # Comparer les dimensions des images
-├── convert_to_my_format.py # Conversion PNG → VIC
-├── main.py                # Application principale FastAPI
-├── read_my_format.py      # Lecture des fichiers VIC
-├── visionneuse.html       # Visionneuse riche
-└── static/
-    └── vic-viewer.html    # Visionneuse minimaliste pour iframes
+FastAPI/
+├── __pycache__/               # Cache Python pour le projet
+├── static/                    # Fichiers statiques pour le projet
+│   ├── index.html             # Page d'accueil HTML
+│   ├── output.vic             # Exemple de fichier .vic
+│   └── vic-viewer.html        # Visionneuse HTML pour les fichiers .vic
+├── .env                       # Fichier de configuration d'environnement
+├── .gitignore                 # Exclusions Git
+├── compare_sizes.py           # Script pour comparer les tailles des fichiers
+├── convert_to_my_format.py    # Script CLI pour convertir les fichiers en .vic
+├── linode.vic.tar.gz          # Exemple de fichier .vic compressé
+├── main.py                    # Application principale pour FastAPI ou Heroku
+├── output.vic.tar.gz          # Fichier .vic compressé généré
+├── Procfile                   # Spécifications de déploiement Heroku
+├── read_my_format.py          # Script pour lire et valider les fichiers .vic
+├── README.fr.md               # Documentation en français
+├── README.md                  # Documentation en anglais
+├── requirements.txt           # Dépendances Python
+├── runtime.txt                # Version de Python pour Heroku
+├── test1.vic                  # Fichier .vic de test
+├── test1.vic.tar.gz           # Version compressée du fichier de test
+└── visionneuse.html           # Visionneuse riche pour afficher les fichiers .vic
 ```

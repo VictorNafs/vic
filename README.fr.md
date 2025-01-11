@@ -20,7 +20,7 @@
 
 ## Structure du Projet
 
-```
+```plaintext
 ├── convert_to_my_format.py   # Outil CLI pour créer des fichiers .vic
 ├── convert_gui.py            # Interface graphique pour la conversion
 ├── compare_sizes.py          # Comparer les tailles des fichiers originaux et convertis
