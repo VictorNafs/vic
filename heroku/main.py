@@ -4,23 +4,26 @@ from fastapi.responses import JSONResponse, FileResponse, StreamingResponse, HTM
 from fastapi.staticfiles import StaticFiles
 from tempfile import NamedTemporaryFile
 from convert_to_my_format import convert_to_my_format
+from fastapi.staticfiles import StaticFiles
 import requests
 import validators
 import struct
 import json
 import io
 
+app = FastAPI()
+
 # Chemin racine pour le projet
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-app = FastAPI()
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 @app.get("/")
 def read_root():
     return {"message": "Bienvenue sur ma page FastAPI!"}
 
 @app.post("/convert")
-async def convert_to_vic(file: UploadFile, for_iframe: bool = Query(False, description="Optimize dimensions for iframe embedding")):
+async def convert_to_vic(file: UploadFile, for_iframe: bool = False):
     """
     Convert a PNG file to the VIC format.
     """
@@ -37,7 +40,7 @@ async def convert_to_vic(file: UploadFile, for_iframe: bool = Query(False, descr
     output_file_path = temp_file_path.replace(".png", ".vic")
 
     try:
-        # Perform conversion
+        # Pass the `for_iframe` argument to the conversion function if needed
         convert_to_my_format(temp_file_path, output_file_path, for_iframe=for_iframe)
 
         # Return the VIC file as a response
@@ -45,7 +48,6 @@ async def convert_to_vic(file: UploadFile, for_iframe: bool = Query(False, descr
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": f"Conversion failed: {str(e)}"})
     finally:
-        # Remove only the temporary PNG file
         os.remove(temp_file_path)
 
 @app.post("/metadata")
@@ -127,7 +129,7 @@ def generate_iframe(file_url: str, width: int = 560, height: int = 315):
     """
     Génère un iframe pour afficher un fichier VIC via la visionneuse hébergée.
     """
-    viewer_url = "http://172.233.247.47:8000/visionneuse.html"  # Visionneuse générique
+    viewer_url = "http://172.233.247.47:8000/vic-viewer.html"  # Visionneuse générique
     iframe_code = f"""
     <iframe src="{viewer_url}?file={file_url}" width="{width}" height="{height}"
     frameborder="0" style="overflow:auto;" allowfullscreen></iframe>
@@ -137,8 +139,5 @@ def generate_iframe(file_url: str, width: int = 560, height: int = 315):
 # Héberger visionneuse.html à la racine
 @app.get("/vic-viewer.html")
 async def serve_viewer():
-    return FileResponse("visionneuse.html")
+    return FileResponse("vic-viewer.html")
 
-# Héberger les fichiers statiques (par exemple CSS, JS)
-static_dir = os.path.join(BASE_DIR, "static")
-app.mount("/static", StaticFiles(directory=static_dir), name="static")

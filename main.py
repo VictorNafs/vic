@@ -10,6 +10,17 @@ import json
 
 app = FastAPI()
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+@app.get("/fetch-vic")
+async def fetch_vic(file_url: str):
+    try:
+        response = requests.get(file_url)
+        response.raise_for_status()
+        return FileResponse(io.BytesIO(response.content), media_type="application/octet-stream")
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch VIC file: {str(e)}")
+
 @app.get("/")
 def read_root():
     return {"message": "Bienvenue sur ma page FastAPI!"}
@@ -117,7 +128,7 @@ async def serve_viewer():
 # Endpoint pour générer le code iframe
 @app.get("/generate-iframe")
 async def generate_iframe(file_url: str):
-    viewer_url = "https://<your-heroku-app-name>.herokuapp.com/vic-viewer.html"
+    viewer_url = "http://172.233.247.47:8000/vic-viewer.html"
     iframe_code = f"""
     <iframe src="{viewer_url}?file={file_url}" width="560" height="315" 
     frameborder="0" allowfullscreen></iframe>

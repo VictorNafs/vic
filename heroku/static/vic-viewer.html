@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIC Viewer</title>
+</head>
+<body>
+  <h1>VIC Viewer</h1>
+  <div id="image-container"></div>
+  <div id="metadata"></div>
+
+  <script>
+    async function fetchVIC(fileUrl) {
+      try {
+        const response = await fetch(fileUrl);
+        if (!response.ok) {
+          throw new Error('Failed to fetch the VIC file.');
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        parseVIC(arrayBuffer);
+      } catch (error) {
+        document.body.innerHTML = `<p>Error: ${error.message}</p>`;
+      }
+    }
+
+    function parseVIC(arrayBuffer) {
+      const data = new DataView(arrayBuffer);
+      const signature = String.fromCharCode(data.getUint8(0), data.getUint8(1), data.getUint8(2));
+      if (signature !== "VIC") {
+        document.body.innerHTML = "<p>Invalid VIC file</p>";
+        return;
+      }
+
+      const version = data.getUint8(3);
+      const width = data.getUint32(4, true);
+      const height = data.getUint32(8, true);
+
+      const metadataSize = data.getUint32(12, true);
+      const metadataStart = 16;
+      const metadataEnd = metadataStart + metadataSize;
+      const metadata = JSON.parse(
+        new TextDecoder().decode(new Uint8Array(arrayBuffer, metadataStart, metadataSize))
+      );
+
+      const imgDataSize = data.getUint32(metadataEnd, true);
+      const imgStart = metadataEnd + 4;
+      const imgBlob = new Blob([new Uint8Array(arrayBuffer, imgStart, imgDataSize)], { type: "image/png" });
+
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(imgBlob);
+      img.style.maxWidth = "100%";
+
+      document.getElementById("image-container").appendChild(img);
+
+      const metadataDiv = document.getElementById("metadata");
+      metadataDiv.innerHTML = `
+        <h3>Metadata</h3>
+        <pre>${JSON.stringify(metadata, null, 2)}</pre>
+      `;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const fileUrl = params.get("file");
+    if (fileUrl) {
+      fetchVIC(fileUrl);
+    } else {
+      document.body.innerHTML = "<p>No file URL provided.</p>";
+    }
+  </script>
+</body>
+</html>
