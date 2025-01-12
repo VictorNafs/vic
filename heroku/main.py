@@ -127,14 +127,16 @@ def fetch_vic(file_url: str):
 @app.get("/generate-iframe")
 def generate_iframe(file_url: str, width: int = 560, height: int = 315):
     """
-    Génère un iframe pour afficher un fichier VIC via la visionneuse hébergée.
+    Generate an iframe to display a VIC file using the hosted viewer.
     """
-    viewer_url = "http://172.233.247.47:8000/vic-viewer.html"  # Visionneuse générique
+    # Ensure the `file_url` is properly exposed on a public server
+    viewer_url = "http://172.233.247.47:8000/static/vic-viewer.html"  # Adjust to your public domain/IP
     iframe_code = f"""
     <iframe src="{viewer_url}?file={file_url}" width="{width}" height="{height}"
     frameborder="0" style="overflow:auto;" allowfullscreen></iframe>
     """
     return HTMLResponse(content=iframe_code)
+
 
 # Héberger visionneuse.html à la racine
 @app.get("/vic-viewer.html")
