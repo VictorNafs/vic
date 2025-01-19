@@ -2,12 +2,13 @@ const CACHE_NAME = 'vicfile-cache-v3'; // Augmentez la version à chaque modific
 const urlsToCache = [
     '/',
     '/static/css/styles.css',
-    '/static/js/install-pwa.js',
     '/static/pages/convert/convert.html',
     '/static/pages/convert/browser.html',
     '/static/pages/metadata/metadata.html',
     '/static/pages/preview/preview.html',
-    '/static/pages/iframe/iframe.html'
+    '/static/pages/iframe/iframe.html',
+    '/static/main-pafe.html'
+
 ];
 
 self.addEventListener('install', (event) => {
