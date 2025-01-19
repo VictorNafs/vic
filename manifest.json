@@ -1,0 +1,22 @@
+{
+    "name": "VicFile",
+    "short_name": "App",
+    "icons": [
+      {
+        "src": "/static/images/logovic.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/static/images/logovic_large.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ],
+    "start_url": "/",
+    "background_color": "#FFFFFF",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#FFFFFF"
+  }
+  

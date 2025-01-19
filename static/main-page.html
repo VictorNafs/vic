@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Convertisseur et Visionneuse VIC</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="shortcut icon" href="/static/images/logovic.ico" type="image/x-icon">
+    <meta property="og:image" content="/static/images/logovic_large.png"/>
+    <meta name="theme-color" content="#FFFFFF">
+    <meta name="description" content="VicFile.io : Outils avancés pour convertir, visualiser et manipuler des fichiers VIC facilement et rapidement.">
+    <meta name="keywords" content="fichiers VIC, convertisseur VIC, visionneuse VIC, métadonnées VIC, outils VIC, .VIC">
+    <meta name="author" content="Victor DUPREZ / VicFile.io">
+    <link rel="canonical" href="https://www.vicfile.io/">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@votre_nom_twitter">
+    <meta name="twitter:title" content="VicFile.io - Convertir et Visualiser des Fichiers VIC">
+    <meta name="twitter:description" content="Convertissez, prévisualisez et extrayez les métadonnées des fichiers VIC avec VicFile.io.">
+    <meta name="twitter:image" content="/static/images/logovic_large.png">
+
+  </head>
+<body>
+  <header>
+    <h1>Convertisseur et Visionneuse <span class="vic">.VIC</span></h1>
+  </header>
+  <nav>
+    <ul>
+      <li><a href="/static/pages/convert/browser.html" target="content-frame">Convertir PNG → VIC</a></li>
+      <li><a href="/static/pages/metadata/metadata.html" target="content-frame">Extraire Métadonnées</a></li>
+      <li><a href="/static/pages/preview/preview.html" target="content-frame">Prévisualiser VIC</a></li>
+      <li><a href="/static/pages/iframe/iframe.html" target="content-frame">Générer un Iframe</a></li>
+    </ul>
+  </nav>
+
+  <div id="loader" class="loader-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <main>
+    <iframe name="content-frame" src="{{DEFAULT_IFRAME_SRC}}" frameborder="0"></iframe>
+  </main>
+
+  <footer>
+    <p>© 2025 VicFile.io. Tous droits réservés.</p>
+  </footer>
+
+  <script>
+    const iframe = document.querySelector('iframe[name="content-frame"]');
+    const loader = document.getElementById("loader");
+
+    // Show the loader when navigation starts
+    const links = document.querySelectorAll('nav a');
+    links.forEach(link => {
+      link.addEventListener('click', function () {
+        if (loader) loader.style.display = "flex";
+      });
+    });
+
+    // Hide the loader when iframe finishes loading
+    iframe.addEventListener('load', function () {
+      if (loader) loader.style.display = "none";
+    });
+  </script>
+</body>
+</html>

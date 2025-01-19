@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIC Viewer</title>
+  <link rel="shortcut icon" href="/static/images/logovic.ico" type="image/x-icon">
+    <meta property="og:image" content="/static/images/logovic_large.png">
+    <meta name="theme-color" content="#FFFFFF">
+    <meta name="description" content="Convertissez des images en fichiers VIC grâce à VicFile.io.">
+    <meta name="keywords" content="convertir fichiers, fichiers VIC, images VIC, outils VIC, conversion VIC, .VIC">
+    <meta name="author" content="Victor DUPREZ / VicFile.io">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #image-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      background-color: #f9f9f9;
+      overflow-y: auto;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+    #metadata {
+      margin-top: 20px;
+      padding: 10px;
+      background: #f0f0f0;
+      border-radius: 5px;
+      width: 90%;
+    }
+  </style>
+</head>
+<body>
+  <h1>VIC Viewer</h1>
+  <div id="image-container"></div>
+  <div id="metadata"></div>
+
+  <script>
+    async function loadVICFromURL(fileUrl) {
+      try {
+        const response = await fetch(`/fetch-vic?file_url=${encodeURIComponent(fileUrl)}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok.');
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        displayVICFile(arrayBuffer);
+      } catch (error) {
+        console.error('Error loading VIC file:', error);
+        alert('Error loading VIC file: ' + error.message);
+      }
+    }
+
+    function displayVICFile(arrayBuffer) {
+      const data = new DataView(arrayBuffer);
+
+      const signature = String.fromCharCode(data.getUint8(0), data.getUint8(1), data.getUint8(2));
+      if (signature !== "VIC") {
+        alert("Invalid file!");
+        return;
+      }
+
+      const version = data.getUint8(3);
+      const originalWidth = data.getUint32(4, true);
+      const originalHeight = data.getUint32(8, true);
+
+      const metadataSize = data.getUint32(12, true);
+      const metadataStart = 16;
+      const metadataEnd = metadataStart + metadataSize;
+      const metadata = JSON.parse(
+        new TextDecoder().decode(new Uint8Array(arrayBuffer, metadataStart, metadataSize))
+      );
+
+      const imgDataSize = data.getUint32(metadataEnd, true);
+      const imgStart = metadataEnd + 4;
+      const imgBlob = new Blob([new Uint8Array(arrayBuffer, imgStart, imgDataSize)], { type: "image/png" });
+
+      const img = new Image();
+      img.src = URL.createObjectURL(imgBlob);
+      img.style.maxWidth = "100%";
+      img.style.height = "auto";
+
+      document.getElementById("image-container").appendChild(img);
+
+      const metadataDiv = document.getElementById("metadata");
+      metadataDiv.innerHTML = `
+        <h3>Metadata</h3>
+        <p>Version: ${version}</p>
+        <p>Original Dimensions: ${originalWidth}x${originalHeight}</p>
+        <pre>${JSON.stringify(metadata, null, 2)}</pre>
+      `;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const fileUrl = urlParams.get('file');
+    if (fileUrl) {
+      loadVICFromURL(fileUrl);
+    } else {
+      alert('No file URL provided.');
+    }
+  </script>
+</body>
+</html>
