@@ -7,7 +7,7 @@ const urlsToCache = [
     '/static/pages/metadata/metadata.html',
     '/static/pages/preview/preview.html',
     '/static/pages/iframe/iframe.html',
-    '/static/main-pafe.html'
+    '/static/main-page.html'
 
 ];
 
