@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -161,7 +161,7 @@
 <body>
 
 <header>
-  <h2>Convertir un fichier Image en VIC</h2>
+
 </header>
 
   <main>
@@ -196,61 +196,60 @@
 
 </footer>
 
-  <script defer>
-    document.addEventListener('DOMContentLoaded', () => {
-      const convertForm = document.getElementById('convertForm');
-      const convertResult = document.getElementById('convertResult');
-      const vicDownloadLink = document.getElementById('vicDownloadLink');
-      const fileError = document.getElementById('fileError');
+<script defer>
+  document.addEventListener('DOMContentLoaded', () => {
+    const convertForm = document.getElementById('convertForm');
+    const convertResult = document.getElementById('convertResult');
+    const vicDownloadLink = document.getElementById('vicDownloadLink');
+    const fileError = document.getElementById('fileError');
 
-      function showLoader() {
-        const loader = document.getElementById("loader");
-        if (loader) loader.style.display = "flex";
+    function showLoader() {
+      const loader = document.getElementById("loader");
+      if (loader) loader.style.display = "flex";
+    }
+
+    function hideLoader() {
+      const loader = document.getElementById("loader");
+      if (loader) loader.style.display = "none";
+    }
+
+    convertForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fileInput = document.getElementById('pngFile');
+      if (!fileInput.files.length) {
+        fileError.style.display = "block";
+        fileInput.focus();
+        return;
       }
+      fileError.style.display = "none";
 
-      function hideLoader() {
-        const loader = document.getElementById("loader");
-        if (loader) loader.style.display = "none";
+      showLoader();
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      try {
+        const response = await fetch('/convert', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          vicDownloadLink.href = URL.createObjectURL(blob);
+          convertResult.style.display = 'block';
+        } else {
+          alert('Erreur lors de la conversion.');
+        }
+      } catch (error) {
+        alert('Une erreur s\'est produite.');
+      } finally {
+        hideLoader();
       }
-
-      convertForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const fileInput = document.getElementById('pngFile');
-        if (!fileInput.files.length) {
-          fileError.style.display = "block";
-          fileInput.focus();
-          return;
-        }
-        fileError.style.display = "none";
-
-        showLoader();
-
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-
-        try {
-          const response = await fetch('/convert', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (response.ok) {
-            const blob = await response.blob();
-            vicDownloadLink.href = URL.createObjectURL(blob);
-            convertResult.style.display = 'block';
-          } else {
-            alert('Erreur lors de la conversion.');
-          }
-        } catch (error) {
-          alert('Une erreur s\'est produite.');
-        } finally {
-          hideLoader();
-        }
-      });
-
-      hideLoader(); // Ensure loader is hidden on initial load
     });
-  </script>
+  });
+</script>
+
 </body>
 </html>

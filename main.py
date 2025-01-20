@@ -207,25 +207,24 @@ def fetch_and_convert_vic(file_url: str, for_iframe: bool = False):
         if output_file_path and os.path.exists(output_file_path):
             os.remove(output_file_path)
             
-# Endpoint pour générer le code iframe
 @app.get("/generate-iframe")
 def generate_iframe(
-    file_url: str = Query(
-        ...,
-        description="Public URL where the .vic file is hosted (e.g., http://example.com/output.vic). This URL must be accessible over the internet."
-    ),
+    file_url: str = Query(..., description="Public URL where the .vic file is hosted."),
     width: int = Query(560, description="Width of the iframe in pixels."),
     height: int = Query(315, description="Height of the iframe in pixels."),
 ):
     """
-    Generate an iframe to display a VIC file using the hosted viewer.
-
-    The `file_url` must point to a .vic file hosted on a public server or domain. 
-    Files on localhost or private networks will not work for remote users.
+    Generate an iframe to display a VIC file using vic-viewer.html.
     """
-    viewer_url = "http://172.233.247.47:8000/static/vic-viewer.html"
+    viewer_url = "https://vicfile.io/static/vic-viewer.html"
     iframe_code = f"""
     <iframe src="{viewer_url}?file={file_url}" width="{width}" height="{height}"
     frameborder="0" style="overflow:auto;" allowfullscreen></iframe>
     """
     return HTMLResponse(content=iframe_code)
+
+# Héberger visionneuse.html à la racine
+@app.get("/vic-viewer.html")
+async def serve_viewer():
+    return FileResponse("vic-viewer.html")
+

@@ -120,6 +120,31 @@
         background-color: #1e1e1e;
     }
 
+    /* Bouton en bas de la page, au-dessus du footer */
+    .floating-button {
+        display: flex;
+        justify-content: flex-end; /* Positionné vers la droite */
+        margin: 0 20px 60px 0; /* 60px au-dessus du footer et espace à droite */
+    }
+
+    .floating-button a {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #ff6700; /* Couleur de fond */
+        color: #000; /* Couleur du texte */
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Ombre */
+        transition: all 0.3s ease; /* Transition douce pour l'interaction */
+    }
+
+    .floating-button a:hover {
+        background-color: #e65c00; /* Couleur de fond au survol */
+        color: #fff; /* Texte blanc au survol */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Ombre accentuée */
+    }
+
     /* Bannière d'installation */
     .install-banner {
         display: flex;
@@ -186,4 +211,10 @@
         form {
             padding: 15px;
           }
+
+          /* Responsive Design */
+        .floating-button {
+        justify-content: center; /* Bouton centré pour les petits écrans */
+        margin: 0 0 60px 0; /* Supprime la marge latérale */
+        }
     }

@@ -21,36 +21,76 @@
 
 <style>
 
-/* Bouton en bas de la page, au-dessus du footer */
-.floating-button {
-    display: flex;
-    justify-content: flex-end; /* Positionné vers la droite */
-    margin: 0 20px 60px 0; /* 60px au-dessus du footer et espace à droite */
+/* Style global */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #121212; /* Fond sombre */
+    color: #ff6700; /* Texte orange */
+    font-family: Arial, sans-serif;
 }
 
-.floating-button a {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #ff6700; /* Couleur de fond */
-    color: #000; /* Couleur du texte */
-    font-weight: bold;
-    text-decoration: none;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Ombre */
-    transition: all 0.3s ease; /* Transition douce pour l'interaction */
+/* Titres */
+h1, h2 {
+    text-align: center;
+    color: #ff6700;
+    margin-top: 20px;
 }
 
-.floating-button a:hover {
-    background-color: #e65c00; /* Couleur de fond au survol */
-    color: #fff; /* Texte blanc au survol */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Ombre accentuée */
+h1 {
+    font-size: 2.5rem;
 }
 
-/* Responsive Design */
+h2 {
+    font-size: 2rem;
+    margin: 10px 0;
+}
+
+/* Sections */
+section {
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 800px;
+    background-color: #1e1e1e; /* Fond sombre pour les sections */
+    border: 2px solid #444; /* Bordure grise */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Ombre */
+}
+
+section p {
+    color: #f4f4f9; /* Texte clair */
+    line-height: 1.6; /* Espacement entre les lignes */
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+/* Liens */
+a {
+    color: #ff6700;
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #e65c00; /* Orange plus sombre au survol */
+}
+
+/* Responsiveness */
 @media (max-width: 768px) {
-    .floating-button {
-        justify-content: center; /* Bouton centré pour les petits écrans */
-        margin: 0 0 60px 0; /* Supprime la marge latérale */
+    body {
+        font-size: 14px;
+    }
+
+    section {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
     }
 }
 
@@ -59,7 +99,7 @@
 </head>
 <body>
     <header>
-        <h1>Mentions Légales</h1>
+        <h2>Mentions Légales</h2>
     </header>
 
     <main>
@@ -126,16 +166,5 @@
             </p>
         </section>
     </main>
-
-    <script type="module" defer>
-        import { hideLoader, showLoader, setupIframeLoader } from '/static/js/install-pwa.js';
-    
-        document.addEventListener("DOMContentLoaded", () => {
-            hideLoader(); // Masquer le loader global à l'ouverture
-            console.log("Mentions légales chargées.");
-        });
-    
-        setupIframeLoader('iframe[name="content-frame"]'); // Gestion du loader pour l'iframe
-    </script>
 </body>
 </html>

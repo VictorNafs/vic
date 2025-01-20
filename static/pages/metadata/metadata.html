@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -158,7 +158,7 @@
 <body>
 
 <header>
-  <h2>Extraire les métadonnées d'un fichier VIC</h2>
+
 </header>
 
   <main>
@@ -184,62 +184,62 @@
 
 </footer>
 
-  <script defer>
-    document.addEventListener('DOMContentLoaded', () => {
-      const metadataForm = document.getElementById('metadataForm');
-      const metadataResult = document.getElementById('metadataResult');
-      const loader = document.getElementById('loader');
-      const fileError = document.getElementById('fileError');
+<script defer>
+  document.addEventListener('DOMContentLoaded', () => {
+    const metadataForm = document.getElementById('metadataForm');
+    const metadataResult = document.getElementById('metadataResult');
+    const loader = document.getElementById('loader');
+    const fileError = document.getElementById('fileError');
 
-      // Functions to show/hide loader
-      function showLoader() {
-        if (loader) loader.style.display = "flex";
+    // Fonction pour afficher le loader
+    function showLoader() {
+      if (loader) loader.style.display = "flex";
+    }
+
+    // Fonction pour masquer le loader
+    function hideLoader() {
+      if (loader) loader.style.display = "none";
+    }
+
+    // Gestion de la soumission du formulaire
+    metadataForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Vérifie si un fichier a été sélectionné
+      const fileInput = document.getElementById('vicFile');
+      if (!fileInput.files.length) {
+        fileError.style.display = "block"; // Affiche une erreur si aucun fichier
+        fileInput.focus();
+        return;
       }
+      fileError.style.display = "none"; // Masque l'erreur si un fichier est sélectionné
 
-      function hideLoader() {
-        if (loader) loader.style.display = "none";
+      showLoader(); // Affiche le loader pendant l'extraction
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      try {
+        const response = await fetch('/metadata', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          metadataResult.textContent = JSON.stringify(data.metadata, null, 2); // Affiche les métadonnées formatées
+          metadataResult.style.display = 'block';
+        } else {
+          alert('Erreur lors de l\'extraction des métadonnées.');
+        }
+      } catch (error) {
+        alert("Une erreur s'est produite lors de l'extraction des métadonnées.");
+      } finally {
+        hideLoader(); // Masque le loader une fois le traitement terminé
       }
-
-      // Form submission handling
-      metadataForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        // Validate file input
-        const fileInput = document.getElementById('vicFile');
-        if (!fileInput.files.length) {
-          fileError.style.display = "block";
-          fileInput.focus();
-          return;
-        }
-        fileError.style.display = "none";
-
-        showLoader();
-
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-
-        try {
-          const response = await fetch('/metadata', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            metadataResult.textContent = JSON.stringify(data.metadata, null, 2);
-            metadataResult.style.display = 'block';
-          } else {
-            alert('Erreur lors de l\'extraction des métadonnées.');
-          }
-        } catch (error) {
-          alert("Une erreur s'est produite lors de l'extraction des métadonnées.");
-        } finally {
-          hideLoader();
-        }
-      });
-
-      hideLoader(); // Ensure loader is hidden on initial load
     });
-  </script>
+  });
+</script>
+
 </body>
 </html>

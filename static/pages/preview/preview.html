@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -174,7 +174,7 @@
 </head>
 <body>
   <header>
-    <h2>Prévisualiser un fichier VIC</h2>
+
   </header>
 
   <main>
@@ -199,44 +199,53 @@
 
   </footer>
 
-  <!-- Scripts -->
   <script defer>
     document.addEventListener('DOMContentLoaded', () => {
       const previewForm = document.getElementById('previewForm');
       const previewContainer = document.getElementById('previewContainer');
       const loader = document.getElementById('loader');
-
+  
       // Afficher le loader
       function showLoader() {
         if (loader) loader.style.display = "flex";
       }
-
+  
       // Masquer le loader
       function hideLoader() {
         if (loader) loader.style.display = "none";
       }
-
+  
       // Gestion de la prévisualisation
       previewForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        showLoader();
-
+        e.preventDefault(); // Empêche l'envoi classique du formulaire
+        showLoader(); // Affiche le loader
+  
+        const fileInput = document.getElementById('vicPreviewFile');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+          alert("Veuillez sélectionner un fichier à prévisualiser.");
+          hideLoader();
+          return;
+        }
+  
         const formData = new FormData();
-        formData.append('file', document.getElementById('vicPreviewFile').files[0]);
-
+        formData.append('file', file);
+  
         try {
           const response = await fetch('/preview', {
             method: 'POST',
             body: formData,
           });
-
+  
           if (response.ok) {
             const blob = await response.blob();
             const img = document.createElement('img');
             img.src = URL.createObjectURL(blob);
-            img.loading = "lazy"; // Lazy load l'image
-
-            previewContainer.innerHTML = ''; // Nettoyer le conteneur
+            img.loading = "lazy"; // Active le lazy loading
+            img.alt = "Prévisualisation du fichier VIC";
+  
+            previewContainer.innerHTML = ''; // Vide le conteneur avant d'ajouter une nouvelle image
             previewContainer.appendChild(img);
           } else {
             alert('Erreur lors de la prévisualisation.');
@@ -244,13 +253,11 @@
         } catch (error) {
           alert("Une erreur s'est produite lors de la prévisualisation.");
         } finally {
-          hideLoader();
+          hideLoader(); // Masque le loader après traitement
         }
       });
-
-      // Masquer le loader après le chargement initial
-      hideLoader();
     });
   </script>
+  
 </body>
 </html>

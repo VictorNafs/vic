@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -163,12 +163,11 @@
 <body>
 
 <header>
-  <h2>Générer un iframe pour un fichier VIC</h2>
+
 </header>
 
   <main>
     <section aria-labelledby="iframeFormSection">
-      <h2 id="iframeFormSection">Génération d'iframe</h2>
       <form id="iframeForm" aria-label="Formulaire de génération d'iframe">
         <label for="vicUrl">URL du fichier VIC :</label>
         <input 
@@ -197,53 +196,55 @@
 
 </footer>
 
-  <script defer>
-    document.addEventListener('DOMContentLoaded', () => {
-      const iframeForm = document.getElementById('iframeForm');
-      const iframePreview = document.getElementById('iframePreview');
-      const iframeResult = document.getElementById('iframeResult');
-      const loader = document.getElementById('loader');
-      const urlError = document.getElementById('urlError');
+<script defer>
+  document.addEventListener('DOMContentLoaded', () => {
+    const iframeForm = document.getElementById('iframeForm');
+    const iframePreview = document.getElementById('iframePreview');
+    const iframeResult = document.getElementById('iframeResult');
+    const loader = document.getElementById('loader');
+    const urlError = document.getElementById('urlError');
 
-      // Functions to show/hide loader
-      function showLoader() {
-        if (loader) loader.style.display = "flex";
+    // Functions to show and hide the loader
+    function showLoader() {
+      if (loader) loader.style.display = "flex";
+    }
+
+    function hideLoader() {
+      if (loader) loader.style.display = "none";
+    }
+
+    // Handle form submission for generating the iframe
+    iframeForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const urlInput = document.getElementById('vicUrl');
+      const url = urlInput.value.trim();
+
+      // Validate the URL format
+      if (!url || !/^https?:\/\/.+\..+/.test(url)) {
+        urlError.style.display = "block"; // Show error if URL is invalid
+        urlInput.focus();
+        return;
       }
+      urlError.style.display = "none"; // Hide error if URL is valid
 
-      function hideLoader() {
-        if (loader) loader.style.display = "none";
-      }
+      showLoader(); // Show loader when iframe starts loading
 
-      // Form submission handling
-      iframeForm.addEventListener('submit', (e) => {
-        e.preventDefault();
+      try {
+        iframePreview.src = `/generate-iframe?file_url=${encodeURIComponent(url)}`;
+        iframeResult.style.display = 'block';
 
-        const urlInput = document.getElementById('vicUrl');
-        const url = urlInput.value.trim();
-
-        // Validate URL
-        if (!url || !/^https?:\/\/.+\..+/.test(url)) {
-          urlError.style.display = "block";
-          urlInput.focus();
-          return;
-        }
-        urlError.style.display = "none";
-
-        showLoader();
-
-        try {
-          iframePreview.src = `/generate-iframe?file_url=${encodeURIComponent(url)}`;
-          iframeResult.style.display = 'block';
-
-          iframePreview.addEventListener('load', hideLoader);
-        } catch (error) {
-          alert("Erreur lors de la génération de l'iframe.");
+        // Hide loader once the iframe is loaded
+        iframePreview.onload = () => {
           hideLoader();
-        }
-      });
-
-      hideLoader(); // Ensure loader is hidden on initial load
+        };
+      } catch (error) {
+        alert("Erreur lors de la génération de l'iframe."); // Handle errors
+        hideLoader();
+      }
     });
-  </script>
+  });
+</script>
+
 </body>
 </html>
