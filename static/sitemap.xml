@@ -13,7 +13,17 @@
   <priority>1.00</priority>
 </url>
 <url>
+  <loc>https://vicfile.io/static/main-page.html</loc>
+  <lastmod>2025-01-20T19:21:42+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
   <loc>https://vicfile.io/static/pages/convert/browser.html</loc>
+  <lastmod>2025-01-20T19:21:42+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://vicfile.io/static/pages/convert/convert.html</loc>
   <lastmod>2025-01-20T19:21:42+00:00</lastmod>
   <priority>0.80</priority>
 </url>
@@ -29,6 +39,11 @@
 </url>
 <url>
   <loc>https://vicfile.io/static/pages/iframe/iframe.html</loc>
+  <lastmod>2025-01-20T19:21:42+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://vicfile.io/static/pages/support/support.html</loc>
   <lastmod>2025-01-20T19:21:42+00:00</lastmod>
   <priority>0.80</priority>
 </url>
