@@ -1,142 +1,144 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>VicFile.io - Téléchargez l'App</title>
-    <link rel="shortcut icon" href="/static/images/logovic.ico" type="image/x-icon">
-    <meta property="og:image" content="/static/images/logovic_large.png"/>
-    <meta name="theme-color" content="#FFFFFF">
-    <meta name="description" content="Téléchargez l'application PWA VicFile.io pour convertir des images en fichiers VIC.">
-    <meta name="keywords" content="télécharger app, fichiers VIC, conversion VIC, PWA, Progressive Web App">
-    <meta name="author" content="Victor DUPREZ / VicFile.io">
-    
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@votre_nom_twitter">
-    <meta name="twitter:title" content="VicFile.io - Téléchargez l'App">
-    <meta name="twitter:description" content="Installez notre application PWA pour convertir des images PNG ou JPEG en fichiers VIC facilement.">
-    <meta name="twitter:image" content="/static/images/logovic_large.png">
-    <style>
-        /* Importer la police "President Gas" */
-        @font-face {
-            font-family: 'President Gas';
-            src: url('/static/fonts/president-gas/president%20gas.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VicFile.io - Téléchargez l'App</title>
 
-        /* Style global */
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #121212;
-            color: #ff6700;
-            font-family: Arial, sans-serif;
-        }
+  <!-- SEO Metadata -->
+  <meta name="description" content="Téléchargez l'application PWA VicFile.io pour convertir des images en fichiers VIC.">
+  <meta name="keywords" content="télécharger app, fichiers VIC, conversion VIC, PWA, Progressive Web App">
+  <meta name="author" content="Victor DUPREZ / VicFile.io">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta property="og:image" content="/static/images/logovic_large.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@votre_nom_twitter">
+  <meta name="twitter:title" content="VicFile.io - Téléchargez l'App">
+  <meta name="twitter:description" content="Installez notre application PWA pour convertir des images PNG ou JPEG en fichiers VIC facilement.">
+  <meta name="twitter:image" content="/static/images/logovic_large.png">
 
-        /* Centrer les h2 */
-        h2 {
-            font-size: 2rem;
-            color: #ff6700;
-            text-align: center;
-            margin-top: 20px;
-        }
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/static/images/logovic.ico" type="image/x-icon">
+  
+  <style>
+    /* Global Styles */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #121212; /* Fond noir */
+      color: #ff6700; /* Texte orange */
+      font-family: Arial, sans-serif;
+    }
 
-        /* Bannière d'installation */
-        .install-banner {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: #1e1e1e;
-            border: 2px solid #444;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px auto;
-            max-width: 600px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-        }
+    h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-top: 20px;
+      color: #ff6700;
+    }
 
-        .install-banner p {
-            font-size: 1.2rem;
-            color: #f4f4f9;
-            margin-bottom: 15px;
-            line-height: 1.5;
-        }
+    /* Install Banner */
+    .install-banner {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: #1e1e1e;
+      border: 2px solid #444;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
 
-        .install-banner button {
-            background-color: #ff6700;
-            color: black;
-            font-size: 16px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(255, 103, 0, 0.2);
-        }
+    .install-banner p {
+      font-size: 1.2rem;
+      color: #f4f4f9;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
 
-        .install-banner button:hover {
-            background-color: #e65c00;
-            box-shadow: 0 6px 10px rgba(255, 103, 0, 0.3);
-        }
+    .install-banner button {
+      background-color: #ff6700;
+      color: black;
+      font-size: 16px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(255, 103, 0, 0.2);
+    }
 
-        .install-banner button:active {
-            background-color: #cc5200;
-            box-shadow: inset 0 3px 6px rgba(255, 103, 0, 0.4);
-        }
+    .install-banner button:hover {
+      background-color: #e65c00;
+      box-shadow: 0 6px 10px rgba(255, 103, 0, 0.3);
+    }
 
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .install-banner {
-                padding: 15px;
-            }
+    .install-banner button:active {
+      background-color: #cc5200;
+      box-shadow: inset 0 3px 6px rgba(255, 103, 0, 0.4);
+    }
 
-            .install-banner p {
-                font-size: 1rem;
-            }
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .install-banner {
+        padding: 15px;
+      }
 
-            .install-banner button {
-                width: 100%;
-                padding: 12px;
-            }
-        }
-    </style>
+      .install-banner p {
+        font-size: 1rem;
+      }
+
+      .install-banner button {
+        width: 100%;
+        padding: 12px;
+      }
+    }
+  </style>
 </head>
 <body>
+
+<header>
     <h2>VicFile.io - Convertisseur de fichiers</h2>
-    <div class="install-banner">
-        <p>Pour utiliser cette fonctionnalité, installez notre application PWA.</p>
-        <button id="install-button">Installer l'application</button>
-    </div>
-    <script>
+</header>
 
-// Gestion de l'installation PWA
-let deferredPrompt;
+  <main>
+    <section class="install-banner" aria-labelledby="installBannerTitle">
+      <h2 id="installBannerTitle" hidden>Bannière d'installation</h2>
+      <p>Pour utiliser cette fonctionnalité, installez notre application PWA.</p>
+      <button id="install-button" aria-label="Installer l'application PWA">Installer l'application</button>
+    </section>
+  </main>
 
-window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
+<footer>
 
-    const installButton = document.getElementById("install-button");
-    if (installButton) {
+</footer>
+
+  <script>
+    // Gestion de l'installation PWA
+    let deferredPrompt;
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+
+      const installButton = document.getElementById("install-button");
+      if (installButton) {
         installButton.style.display = "block";
         installButton.addEventListener("click", () => {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === "accepted") {
-                    console.log("PWA installée");
-                } else {
-                    console.log("Installation refusée");
-                }
-                deferredPrompt = null;
-            });
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            console.log(choiceResult.outcome === "accepted" 
+              ? "PWA installée avec succès." 
+              : "Installation PWA refusée.");
+            deferredPrompt = null;
+          });
         });
-    }
-});
-
-
-    </script>
+      }
+    });
+  </script>
 </body>
 </html>

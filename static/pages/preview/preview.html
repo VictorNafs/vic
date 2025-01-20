@@ -4,17 +4,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Prévisualiser VIC</title>
-  <link rel="shortcut icon" href="/static/images/logovic.ico" type="image/x-icon">
-  <meta property="og:image" content="/static/images/logovic_large.png"/>
-  <meta name="theme-color" content="#FFFFFF">
+
+  <!-- Metadata pour SEO et partage -->
   <meta name="description" content="Prévisualisez vos fichiers VIC directement depuis votre navigateur avec VicFile.io.">
   <meta name="keywords" content="prévisualisation VIC, fichiers VIC, outils VIC, visionneuse VIC, images VIC, .VIC">
   <meta name="author" content="Victor DUPREZ / VicFile.io">
+  <meta name="theme-color" content="#FFFFFF">
+
+  <!-- Open Graph / Twitter Cards -->
+  <meta property="og:image" content="/static/images/logovic_large.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@votre_nom_twitter">
   <meta name="twitter:title" content="VicFile.io - Prévisualiser des Fichiers VIC">
   <meta name="twitter:description" content="Prévisualisez vos fichiers VIC en ligne grâce à VicFile.io.">
   <meta name="twitter:image" content="/static/images/logovic_large.png">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/static/images/logovic.ico" type="image/x-icon">
+
   <style>
     /* Global Styles */
     body {
@@ -157,65 +164,87 @@
       }
     }
   </style>
+
 </head>
 <body>
-  <h2>Prévisualiser un fichier VIC</h2>
-  <form id="previewForm">
-    <label for="vicPreviewFile">Fichier VIC :</label>
-    <input type="file" id="vicPreviewFile" name="file" accept=".vic" required>
-    <button type="submit">Prévisualiser</button>
-  </form>
-  <div id="loader" class="loader-overlay">
-    <div class="spinner"></div>
-  </div>  
-  <div id="previewContainer">
-    <!-- L'image sera insérée ici -->
-  </div>
-  <script>
-    const previewForm = document.getElementById('previewForm');
-    const previewContainer = document.getElementById('previewContainer');
+  <header>
+    <h2>Prévisualiser un fichier VIC</h2>
+  </header>
 
-    previewForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      showLoader();
+  <main>
+    <section>
+      <form id="previewForm" aria-label="Formulaire de prévisualisation">
+        <label for="vicPreviewFile">Fichier VIC :</label>
+        <input type="file" id="vicPreviewFile" name="file" accept=".vic" required>
+        <button type="submit">Prévisualiser</button>
+      </form>
+    </section>
 
-      const formData = new FormData();
-      formData.append('file', document.getElementById('vicPreviewFile').files[0]);
+    <div id="loader" class="loader-overlay" role="alert" aria-live="polite" style="display: none;">
+      <div class="spinner" aria-hidden="true"></div>
+    </div>
 
-      try {
-        const response = await fetch('/preview', {
-          method: 'POST',
-          body: formData,
-        });
+    <section id="previewContainer" aria-label="Prévisualisation du fichier VIC">
+      <!-- L'image sera insérée ici -->
+    </section>
+  </main>
 
-        if (response.ok) {
-          const blob = await response.blob();
-          const img = document.createElement('img');
-          img.src = URL.createObjectURL(blob);
+  <footer>
 
-          previewContainer.innerHTML = '';
-          previewContainer.appendChild(img);
-        } else {
-          alert('Erreur lors de la prévisualisation.');
-        }
-      } catch (error) {
-        alert("Une erreur s'est produite lors de la prévisualisation.");
-      } finally {
-        hideLoader();
+  </footer>
+
+  <!-- Scripts -->
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      const previewForm = document.getElementById('previewForm');
+      const previewContainer = document.getElementById('previewContainer');
+      const loader = document.getElementById('loader');
+
+      // Afficher le loader
+      function showLoader() {
+        if (loader) loader.style.display = "flex";
       }
+
+      // Masquer le loader
+      function hideLoader() {
+        if (loader) loader.style.display = "none";
+      }
+
+      // Gestion de la prévisualisation
+      previewForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showLoader();
+
+        const formData = new FormData();
+        formData.append('file', document.getElementById('vicPreviewFile').files[0]);
+
+        try {
+          const response = await fetch('/preview', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (response.ok) {
+            const blob = await response.blob();
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(blob);
+            img.loading = "lazy"; // Lazy load l'image
+
+            previewContainer.innerHTML = ''; // Nettoyer le conteneur
+            previewContainer.appendChild(img);
+          } else {
+            alert('Erreur lors de la prévisualisation.');
+          }
+        } catch (error) {
+          alert("Une erreur s'est produite lors de la prévisualisation.");
+        } finally {
+          hideLoader();
+        }
+      });
+
+      // Masquer le loader après le chargement initial
+      hideLoader();
     });
-
-    document.addEventListener("DOMContentLoaded", hideLoader);
-
-    function showLoader() {
-      const loader = document.getElementById("loader");
-      if (loader) loader.style.display = "flex";
-    }
-
-    function hideLoader() {
-      const loader = document.getElementById("loader");
-      if (loader) loader.style.display = "none";
-    }
   </script>
 </body>
 </html>

@@ -4,17 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Extraire Métadonnées VIC</title>
-  <link rel="shortcut icon" href="/static/images/logovic.ico" type="image/x-icon">
-  <meta property="og:image" content="/static/images/logovic_large.png"/>
-  <meta name="theme-color" content="#FFFFFF">
+
+  <!-- SEO and Open Graph Metadata -->
   <meta name="description" content="Extrayez facilement les métadonnées des fichiers VIC avec VicFile.io.">
   <meta name="keywords" content="métadonnées VIC, outils VIC, analyse VIC, informations, fichiers VIC, .VIC">
   <meta name="author" content="Victor DUPREZ / VicFile.io">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta property="og:image" content="/static/images/logovic_large.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@votre_nom_twitter">
   <meta name="twitter:title" content="VicFile.io - Extraire des Métadonnées VIC">
   <meta name="twitter:description" content="Extrayez facilement les métadonnées des fichiers VIC avec VicFile.io.">
   <meta name="twitter:image" content="/static/images/logovic_large.png">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/static/images/logovic.ico" type="image/x-icon">
+
   <style>
     /* Global Styles */
     body {
@@ -142,60 +147,93 @@
       }
     }
   </style>
+
 </head>
 <body>
+
+<header>
   <h2>Extraire les métadonnées d'un fichier VIC</h2>
-  <form id="metadataForm">
-    <label for="vicFile">Fichier VIC :</label>
-    <input type="file" id="vicFile" name="file" accept=".vic" required>
-    <button type="submit">Extraire les métadonnées</button>
-  </form>
-  <div id="loader" class="loader-overlay">
-    <div class="spinner"></div>
-  </div>  
-  <pre id="metadataResult" style="display: none;"></pre>
-  <script>
-    const metadataForm = document.getElementById('metadataForm');
-    const metadataResult = document.getElementById('metadataResult');
+</header>
 
-    metadataForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      showLoader();
+  <main>
+    <section>
+      <form id="metadataForm" aria-label="Formulaire d'extraction des métadonnées">
+        <label for="vicFile">Fichier VIC :</label>
+        <input type="file" id="vicFile" name="file" accept=".vic" required aria-describedby="fileError">
+        <span id="fileError" style="display: none; color: red;" role="alert">Veuillez sélectionner un fichier VIC valide.</span>
+        <button type="submit">Extraire les métadonnées</button>
+      </form>
+    </section>
 
-      const formData = new FormData();
-      formData.append('file', document.getElementById('vicFile').files[0]);
+    <div id="loader" class="loader-overlay" role="alert" aria-live="polite" style="display: none;">
+      <div class="spinner" aria-hidden="true"></div>
+    </div>
 
-      try {
-        const response = await fetch('/metadata', {
-          method: 'POST',
-          body: formData,
-        });
+    <section id="metadataResultContainer" aria-label="Résultats des métadonnées">
+      <pre id="metadataResult" style="display: none;"></pre>
+    </section>
+  </main>
 
-        if (response.ok) {
-          const data = await response.json();
-          metadataResult.textContent = JSON.stringify(data.metadata, null, 2);
-          metadataResult.style.display = 'block';
-        } else {
-          alert('Erreur lors de l\'extraction des métadonnées.');
-        }
-      } catch (error) {
-        alert("Une erreur s'est produite lors de l'extraction des métadonnées.");
-      } finally {
-        hideLoader();
+<footer>
+
+</footer>
+
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      const metadataForm = document.getElementById('metadataForm');
+      const metadataResult = document.getElementById('metadataResult');
+      const loader = document.getElementById('loader');
+      const fileError = document.getElementById('fileError');
+
+      // Functions to show/hide loader
+      function showLoader() {
+        if (loader) loader.style.display = "flex";
       }
+
+      function hideLoader() {
+        if (loader) loader.style.display = "none";
+      }
+
+      // Form submission handling
+      metadataForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Validate file input
+        const fileInput = document.getElementById('vicFile');
+        if (!fileInput.files.length) {
+          fileError.style.display = "block";
+          fileInput.focus();
+          return;
+        }
+        fileError.style.display = "none";
+
+        showLoader();
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        try {
+          const response = await fetch('/metadata', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            metadataResult.textContent = JSON.stringify(data.metadata, null, 2);
+            metadataResult.style.display = 'block';
+          } else {
+            alert('Erreur lors de l\'extraction des métadonnées.');
+          }
+        } catch (error) {
+          alert("Une erreur s'est produite lors de l'extraction des métadonnées.");
+        } finally {
+          hideLoader();
+        }
+      });
+
+      hideLoader(); // Ensure loader is hidden on initial load
     });
-
-    document.addEventListener("DOMContentLoaded", hideLoader);
-
-    function showLoader() {
-      const loader = document.getElementById("loader");
-      if (loader) loader.style.display = "flex";
-    }
-
-    function hideLoader() {
-      const loader = document.getElementById("loader");
-      if (loader) loader.style.display = "none";
-    }
   </script>
 </body>
 </html>

@@ -4,17 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Générer Iframe</title>
-  <link rel="shortcut icon" href="/static/images/logovic.ico" type="image/x-icon">
-  <meta property="og:image" content="/static/images/logovic_large.png"/>
-  <meta name="theme-color" content="#FFFFFF">
+
+  <!-- SEO and Open Graph Metadata -->
   <meta name="description" content="Générez des iframes pour intégrer vos fichiers VIC directement sur vos sites Web.">
   <meta name="keywords" content="iframe VIC, intégration fichiers images, images VIC, fichiers VIC, outils VIC">
   <meta name="author" content="Victor DUPREZ / VicFile.io">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta property="og:image" content="/static/images/logovic_large.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@votre_nom_twitter">
   <meta name="twitter:title" content="VicFile.io - Générer un Iframe pour les Fichiers VIC">
   <meta name="twitter:description" content="Générez facilement des iframes personnalisés pour partager vos fichiers VIC sur VicFile.io.">
   <meta name="twitter:image" content="/static/images/logovic_large.png">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/static/images/logovic.ico" type="image/x-icon">
+
   <style>
     /* Global Styles */
     body {
@@ -147,52 +152,92 @@
       }
     }
   </style>
+  
 </head>
 <body>
+
+<header>
   <h2>Générer un iframe pour un fichier VIC</h2>
-  <form id="iframeForm">
-    <label for="vicUrl">URL du fichier VIC :</label>
-    <input type="url" id="vicUrl" placeholder="http://example.com/output.vic" required>
-    <button type="submit">Générer</button>
-  </form>
-  <div id="iframeResult">
-    <iframe id="iframePreview" src=""></iframe>
-  </div>
-  <div id="loader" class="loader-overlay">
-    <div class="spinner"></div>
-  </div>
-  <script>
-    const iframeForm = document.getElementById('iframeForm');
-    const iframeResult = document.getElementById('iframeResult');
-    const iframePreview = document.getElementById('iframePreview');
+</header>
 
-    function showLoader() {
-      const loader = document.getElementById("loader");
-      if (loader) loader.style.display = "flex";
-    }
+  <main>
+    <section aria-labelledby="iframeFormSection">
+      <h2 id="iframeFormSection">Génération d'iframe</h2>
+      <form id="iframeForm" aria-label="Formulaire de génération d'iframe">
+        <label for="vicUrl">URL du fichier VIC :</label>
+        <input 
+          type="url" 
+          id="vicUrl" 
+          placeholder="http://example.com/output.vic" 
+          required 
+          aria-describedby="urlError" 
+          autocomplete="off">
+        <span id="urlError" style="display: none; color: red;" role="alert">Veuillez entrer une URL valide.</span>
+        <button type="submit">Générer</button>
+      </form>
+    </section>
 
-    function hideLoader() {
-      const loader = document.getElementById("loader");
-      if (loader) loader.style.display = "none";
-    }
+    <section id="iframeResult" aria-labelledby="iframePreviewSection" style="display: none;">
+      <h2 id="iframePreviewSection" hidden>Prévisualisation de l'iframe</h2>
+      <iframe id="iframePreview" src="" title="Prévisualisation de l'iframe généré"></iframe>
+    </section>
 
-    iframeForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      showLoader();
+    <div id="loader" class="loader-overlay" role="alert" aria-live="polite" style="display: none;">
+      <div class="spinner" aria-hidden="true"></div>
+    </div>
+  </main>
+  
+<footer>
 
-      const url = document.getElementById('vicUrl').value;
+</footer>
 
-      try {
-        iframePreview.src = `/generate-iframe?file_url=${encodeURIComponent(url)}`;
-        iframeResult.style.display = 'block';
-        iframePreview.addEventListener('load', hideLoader);
-      } catch (error) {
-        alert("Erreur lors de la génération de l'iframe.");
-        hideLoader();
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      const iframeForm = document.getElementById('iframeForm');
+      const iframePreview = document.getElementById('iframePreview');
+      const iframeResult = document.getElementById('iframeResult');
+      const loader = document.getElementById('loader');
+      const urlError = document.getElementById('urlError');
+
+      // Functions to show/hide loader
+      function showLoader() {
+        if (loader) loader.style.display = "flex";
       }
-    });
 
-    document.addEventListener("DOMContentLoaded", hideLoader);
+      function hideLoader() {
+        if (loader) loader.style.display = "none";
+      }
+
+      // Form submission handling
+      iframeForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const urlInput = document.getElementById('vicUrl');
+        const url = urlInput.value.trim();
+
+        // Validate URL
+        if (!url || !/^https?:\/\/.+\..+/.test(url)) {
+          urlError.style.display = "block";
+          urlInput.focus();
+          return;
+        }
+        urlError.style.display = "none";
+
+        showLoader();
+
+        try {
+          iframePreview.src = `/generate-iframe?file_url=${encodeURIComponent(url)}`;
+          iframeResult.style.display = 'block';
+
+          iframePreview.addEventListener('load', hideLoader);
+        } catch (error) {
+          alert("Erreur lors de la génération de l'iframe.");
+          hideLoader();
+        }
+      });
+
+      hideLoader(); // Ensure loader is hidden on initial load
+    });
   </script>
 </body>
 </html>

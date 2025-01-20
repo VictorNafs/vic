@@ -4,17 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>VicFile.io - Convertisseur de fichiers</title>
-  <link rel="shortcut icon" href="/static/images/logovic.ico" type="image/x-icon">
-  <meta property="og:image" content="/static/images/logovic_large.png"/>
-  <meta name="theme-color" content="#FFFFFF">
+
+  <!-- SEO Metadata -->
   <meta name="description" content="Convertissez des images en fichiers VIC grâce à VicFile.io.">
   <meta name="keywords" content="convertir fichiers, fichiers VIC, images VIC, outils VIC, conversion VIC, .VIC">
   <meta name="author" content="Victor DUPREZ / VicFile.io">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta property="og:image" content="/static/images/logovic_large.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@votre_nom_twitter">
   <meta name="twitter:title" content="VicFile.io - Convertir des Fichiers VIC">
   <meta name="twitter:description" content="Utilisez VicFile.io pour convertir des images PNG ou JPEG au format VIC en quelques clics.">
   <meta name="twitter:image" content="/static/images/logovic_large.png">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/static/images/logovic.ico" type="image/x-icon">
+
   <style>
     /* Global Styles */
     body {
@@ -144,67 +149,101 @@
       }
     }
   </style>
+
 </head>
 <body>
-  <h2>Convertir un fichier PNG en VIC</h2>
-  <form id="convertForm">
-    <label for="pngFile">Fichier PNG :</label>
-    <input type="file" id="pngFile" name="file" accept=".png" required>
-    <button type="submit">Convertir</button>
-  </form>
-  <div id="loader" class="loader-overlay">
-    <div class="spinner"></div>
-  </div>
-  <div id="convertResult">
-    <a id="vicDownloadLink" href="#" download="output.vic">Télécharger le fichier VIC</a>
-  </div>
-  <script>
-    const convertForm = document.getElementById('convertForm');
-    const convertResult = document.getElementById('convertResult');
-    const vicDownloadLink = document.getElementById('vicDownloadLink');
 
-    function showLoader() {
-      const loader = document.getElementById("loader");
-      if (loader) {
-        loader.style.display = "flex";
+<header>
+  <h2>Convertir un fichier Image en VIC</h2>
+</header>
+
+  <main>
+    <section aria-labelledby="convertFormSection">
+      <h2 id="convertFormSection">Formulaire de conversion</h2>
+      <form id="convertForm" aria-label="Formulaire de conversion de fichiers PNG">
+        <label for="pngFile">Fichier PNG :</label>
+        <input 
+          type="file" 
+          id="pngFile" 
+          name="file" 
+          accept=".png" 
+          required 
+          aria-describedby="fileError" 
+          autocomplete="off">
+        <span id="fileError" style="display: none; color: red;" role="alert">Veuillez sélectionner un fichier PNG.</span>
+        <button type="submit">Convertir</button>
+      </form>
+    </section>
+
+    <section id="convertResult" style="display: none;" aria-labelledby="downloadSection">
+      <h2 id="downloadSection" hidden>Résultat de la conversion</h2>
+      <a id="vicDownloadLink" href="#" download="output.vic">Télécharger le fichier VIC</a>
+    </section>
+
+    <div id="loader" class="loader-overlay" role="alert" aria-live="polite" style="display: none;">
+      <div class="spinner" aria-hidden="true"></div>
+    </div>
+  </main>
+
+<footer>
+
+</footer>
+
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      const convertForm = document.getElementById('convertForm');
+      const convertResult = document.getElementById('convertResult');
+      const vicDownloadLink = document.getElementById('vicDownloadLink');
+      const fileError = document.getElementById('fileError');
+
+      function showLoader() {
+        const loader = document.getElementById("loader");
+        if (loader) loader.style.display = "flex";
       }
-    }
 
-    function hideLoader() {
-      const loader = document.getElementById("loader");
-      if (loader) {
-        loader.style.display = "none";
+      function hideLoader() {
+        const loader = document.getElementById("loader");
+        if (loader) loader.style.display = "none";
       }
-    }
 
-    convertForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      showLoader();
+      convertForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-      const formData = new FormData();
-      formData.append('file', document.getElementById('pngFile').files[0]);
-
-      try {
-        const response = await fetch('/convert', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (response.ok) {
-          const blob = await response.blob();
-          vicDownloadLink.href = URL.createObjectURL(blob);
-          convertResult.style.display = 'block';
-        } else {
-          alert('Erreur lors de la conversion.');
+        const fileInput = document.getElementById('pngFile');
+        if (!fileInput.files.length) {
+          fileError.style.display = "block";
+          fileInput.focus();
+          return;
         }
-      } catch (error) {
-        alert('Une erreur s\'est produite.');
-      } finally {
-        hideLoader();
-      }
-    });
+        fileError.style.display = "none";
 
-    document.addEventListener("DOMContentLoaded", hideLoader);
+        showLoader();
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        try {
+          const response = await fetch('/convert', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (response.ok) {
+            const blob = await response.blob();
+            vicDownloadLink.href = URL.createObjectURL(blob);
+            convertResult.style.display = 'block';
+          } else {
+            alert('Erreur lors de la conversion.');
+          }
+        } catch (error) {
+          alert('Une erreur s\'est produite.');
+        } finally {
+          hideLoader();
+        }
+      });
+
+      hideLoader(); // Ensure loader is hidden on initial load
+    });
   </script>
 </body>
 </html>
