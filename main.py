@@ -228,3 +228,6 @@ def generate_iframe(
 async def serve_viewer():
     return FileResponse("vic-viewer.html")
 
+@app.get("/sitemap.xml", response_class=FileResponse)
+async def serve_sitemap():
+    return FileResponse("sitemap.xml")
