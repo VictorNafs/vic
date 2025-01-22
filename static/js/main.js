@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Show the loader when iframe starts loading
     links.forEach(link => {
         link.addEventListener('click', () => {
-            if (iframe) {
+            if (iframe && loader) {
                 showLoader();
             }
         });
@@ -45,11 +45,11 @@ function initializeConvertPage() {
 
         const fileInput = document.getElementById('pngFile');
         if (!fileInput.files.length) {
-            if (fileError) fileError.style.display = "block";
+            fileError.style.display = "block";
             fileInput.focus();
             return;
         }
-        if (fileError) fileError.style.display = "none";
+        fileError.style.display = "none";
 
         showLoader();
 
@@ -90,11 +90,11 @@ function initializeMetadataPage() {
 
         const fileInput = document.getElementById('vicFile');
         if (!fileInput.files.length) {
-            if (fileError) fileError.style.display = "block";
+            fileError.style.display = "block";
             fileInput.focus();
             return;
         }
-        if (fileError) fileError.style.display = "none";
+        fileError.style.display = "none";
 
         showLoader();
 
@@ -128,22 +128,18 @@ function initializePreviewPage() {
     const previewContainer = document.getElementById('previewContainer');
     const fileError = document.getElementById('fileError');
 
-    // Vérifiez si les éléments nécessaires existent
-    if (!previewForm || !previewContainer) {
-        console.warn("Preview page elements not found. Skipping preview initialization.");
-        return; // Si les éléments n'existent pas, arrêtez l'exécution
-    }
+    if (!previewForm) return; // Skip if not on preview page
 
     previewForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const fileInput = document.getElementById('vicPreviewFile');
-        if (!fileInput || !fileInput.files.length) {
-            if (fileError) fileError.style.display = "block"; // Afficher l'erreur uniquement si l'élément existe
-            fileInput?.focus();
+        if (!fileInput.files.length) {
+            fileError.style.display = "block";
+            fileInput.focus();
             return;
         }
-        if (fileError) fileError.style.display = "none";
+        fileError.style.display = "none";
 
         showLoader();
 
@@ -163,7 +159,7 @@ function initializePreviewPage() {
                 img.loading = "lazy";
                 img.alt = "Prévisualisation du fichier VIC";
 
-                previewContainer.innerHTML = ''; // Vide le conteneur avant d'ajouter une nouvelle image
+                previewContainer.innerHTML = '';
                 previewContainer.appendChild(img);
             } else {
                 alert('Erreur lors de la prévisualisation.');
@@ -175,7 +171,6 @@ function initializePreviewPage() {
         }
     });
 }
-
 
 // Iframe Page (iframe.html)
 function initializeIframePage() {
@@ -193,11 +188,11 @@ function initializeIframePage() {
         const url = urlInput.value.trim();
 
         if (!url || !/^https?:\/\/.+\..+/.test(url)) {
-            if (urlError) urlError.style.display = "block";
+            urlError.style.display = "block";
             urlInput.focus();
             return;
         }
-        if (urlError) urlError.style.display = "none";
+        urlError.style.display = "none";
 
         showLoader();
 
