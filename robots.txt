@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
 Sitemap: https://vicfile.io/sitemap.xml
+Disallow: https://vicfile.io/visionneuse.html
