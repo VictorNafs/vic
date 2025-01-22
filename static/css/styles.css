@@ -1,219 +1,421 @@
-       /* Importer la police "President Gas" */
-       @font-face {
-        font-family: 'President Gas';
-        src: url('/static/fonts/president-gas/president%20gas.ttf') format('truetype');
-        font-weight: normal;
-        font-style: normal;
+/* Importer la police "President Gas" */
+@font-face {
+    font-family: 'President Gas';
+    src: url('/static/fonts/president-gas/president%20gas.ttf') format('truetype'); /* Remplacez l'espace par %20 */
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  /* Style global */
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #121212; /* Fond noir */
+    color: #ff6700; /* Texte orange */
+  }
+  
+     /* Loader Overlay */
+  .loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Ensure it's above all other elements */
+  }
+  
+  /* Spinner Animation */
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3; /* Light gray border */
+    border-top: 5px solid orange; /* Orange rotating part */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
     }
-
-    /* Style global */
-    body {
-        font-family: Helvetica, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #121212; /* Fond noir */
-        color: #ff6700; /* Texte orange */
+    100% {
+      transform: rotate(360deg);
     }
+  }
+  
+  .floating-button {
+    display: flex;
+    justify-content: flex-end; /* Positionné vers la droite */
+    margin: 0 20px 60px 0; /* 60px au-dessus du footer et espace à droite */
+}
 
-    /* En-tête */
-    header {
-        background-color: #ff6700; /* Orange vif */
-        color: black; /* Texte noir */
-        padding: 1em;
-        text-align: center;
+.floating-button a {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #ff6700; /* Couleur de fond */
+    color: #000; /* Couleur du texte */
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Ombre */
+    transition: all 0.3s ease; /* Transition douce pour l'interaction */
+}
+
+.floating-button a:hover {
+    background-color: #e65c00; /* Couleur de fond au survol */
+    color: #fff; /* Texte blanc au survol */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Ombre accentuée */
+}
+  
+  /* En-tête */
+  .header-main {
+    background-color: #ff6700; /* Orange vif */
+    color: black; /* Texte noir */
+    padding: 1em;
+    text-align: center;
+  }
+  
+  .header-main h1 {
+    font-family: 'President Gas'; /* Titre avec "President Gas" */
+    font-size: 3rem;
+    text-transform: uppercase; /* Mettre en majuscules */
+    letter-spacing: 1.8px; /* Espacement entre les lettres */
+    margin: 0;
+  }
+  
+  /* Centrer tous les h2 */
+  h2 {
+    font-size: 2rem; /* Taille du texte */
+    color: #ff6700; /* Orange vif */
+    text-align: center; /* Centre le texte horizontalement */
+  }
+  
+  p{
+    text-align: center;
+  }
+
+  .vic{
+    font-family: Helvetica, sans-serif;
+    color: white;
+    font-size: 4.5rem;
+  }
+  
+  section {
+    margin-bottom: 20px; /* Espacement entre les sections */
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+    color: #ff6700; /* Orange vif pour les sous-titres */
+    border-bottom: 1px solid #444; /* Ligne fine sous les sous-titres */
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    font-size: 1rem;
+    line-height: 1.6; /* Améliore la lisibilité */
+    color: #f4f4f9; /* Texte clair */
+  }
+  
+  a {
+    color: #ff6700; /* Couleur orange pour les liens */
+    text-decoration: underline;
+    transition: color 0.3s ease; /* Transition douce pour les interactions */
+  }
+  
+  a:hover {
+    color: #e65c00; /* Orange plus sombre au survol */
+  }
+  
+  
+  /* Navigation */
+  nav ul {
+    display: flex;
+    justify-content: space-around; /* Onglets côte à côte */
+    background-color: #1e1e1e; /* Fond gris foncé */
+    padding: 10px 0;
+    margin: 0;
+    list-style: none;
+    border-bottom: 2px solid #444; /* Ligne de séparation */
+    flex-wrap: wrap; /* Permet le retour à la ligne si nécessaire */
+  }
+  
+  nav ul li {
+    margin: 5px;
+  }
+  
+  nav ul li a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background-color: black;
+    transition: all 0.3s ease;
+    display: block;
+    text-align: center;
+  }
+  
+  nav ul li a:hover {
+    background-color: #ff6700; /* Orange vif au survol */
+    color: black;
+    border: 1px solid #ff6700;
+    box-shadow: 0 4px 8px rgba(255, 103, 0, 0.5); /* Ombre orange */
+  }
+  
+  nav ul li a.active {
+    background-color: #e65c00; /* Orange plus sombre pour l’onglet actif */
+    color: black;
+    border: 1px solid #e65c00;
+    box-shadow: 0 4px 8px rgba(255, 103, 0, 0.5);
+  }
+  
+  main iframe {
+    width: 100%;
+    height: 120vh;
+    border: none;
+    background-color: #1e1e1e; /* Fond gris foncé pour l’iframe */
+  }
+  
+  /* Styles standardisés pour les conteneurs principaux */
+  main h2 {
+    border: 2px solid #444;
+    border-radius: 8px;
+    background-color: #1e1e1e;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Pied de page */
+  .footer-main {
+    text-align: center;
+    background-color: #ff6700;
+    color: black;
+    padding: 10px 0;
+    margin-top: 20px;
+  }
+  
+  /* Boutons */
+  button {
+    background-color: #ff6700; /* Orange vif */
+    color: black;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(255, 103, 0, 0.2);
+  }
+  
+  button:hover {
+    background-color: #e65c00; /* Orange sombre au survol */
+    box-shadow: 0 6px 10px rgba(255, 103, 0, 0.3);
+  }
+  
+  button:active {
+    background-color: #cc5200; /* Orange encore plus sombre au clic */
+    box-shadow: inset 0 3px 6px rgba(255, 103, 0, 0.4);
+  }
+  
+  /* Champs de formulaire */
+  input[type="text"],
+  input[type="email"],
+  input[type="url"],
+  input[type="file"],
+  textarea {
+    width: 100%;
+    line-height: 53px; /* Identique à la hauteur pour le centrer verticalement */
+    padding: 0; /* Supprime le padding */
+    margin: 0 auto;
+    font-size: 14px;
+    border: 1px solid #444; /* Bordure gris foncé */
+    border-radius: 5px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5); /* Légère ombre intérieure */
+    background-color: #1e1e1e; /* Fond gris foncé */
+    color: #f4f4f9; /* Texte clair */
+    transition: all 0.3s ease;
+  }
+  
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="url"]:focus,
+  input[type="file"]:focus,
+  textarea:focus {
+    border-color: #ff6700; /* Bordure orange au focus */
+    outline: none;
+    box-shadow: 0 0 5px rgba(255, 103, 0, 0.8); /* Effet lumineux orange */
+  }
+  
+  /* Labels */
+  label {
+    font-weight: bold;
+    color: #f4f4f9; /* Texte clair */
+    display: block;
+  }
+  
+  /* Amélioration des formulaires */
+  form {
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 2px solid #444;
+    border-radius: 8px;
+    background-color: #121212;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espacement entre les champs */
+  }
+    
+    #previewContainer {
+      /* Assurez-vous que le conteneur gère son propre scroll */
+      overflow: auto;
+      max-height: calc(80vh - 40px); /* Hauteur maximum */
     }
-
-    header h1 {
-        font-family: 'President Gas'; /* Titre avec "President Gas" */
-        font-size: 3rem;
-        text-transform: uppercase; /* Mettre en majuscules */
-        letter-spacing: 1.8px; /* Espacement entre les lettres */
-        margin: 0;
-    }
-
-    header .vic {
-        font-family: Helvetica, sans-serif;
-        color: white;
-        font-size: 4.5rem;
-    }
-
-    /* Navigation */
-    nav ul {
-        display: flex;
-        justify-content: space-around;
-        background-color: #1e1e1e;
-        padding: 10px 0;
-        margin: 0;
-        list-style: none;
-        border-bottom: 2px solid #444;
-        flex-wrap: wrap;
-    }
-
-    nav ul li {
-        margin: 5px;
-    }
-
-    nav ul li a {
-        text-decoration: none;
-        color: white;
-        font-weight: bold;
-        padding: 10px 20px;
-        border: 1px solid transparent;
-        border-radius: 5px;
-        background-color: black;
-        transition: all 0.3s ease;
-        display: block;
-        text-align: center;
-    }
-
-    nav ul li a:hover {
-        background-color: #ff6700;
-        color: black;
-        border: 1px solid #ff6700;
-        box-shadow: 0 4px 8px rgba(255, 103, 0, 0.5);
-    }
-
-    nav ul li a.active {
-        background-color: #e65c00;
-        color: black;
-        border: 1px solid #e65c00;
-        box-shadow: 0 4px 8px rgba(255, 103, 0, 0.5);
-    }
-
-    /* Loader Overlay */
-    .loader-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(255, 255, 255, 0.8);
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    }
-
-    .spinner {
-        width: 50px;
-        height: 50px;
-        border: 5px solid #f3f3f3;
-        border-top: 5px solid orange;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
-    /* Conteneur principal */
-    main iframe {
-        width: 100%;
-        height: 120vh;
-        border: none;
-        background-color: #1e1e1e;
-    }
-
-    /* Bouton en bas de la page, au-dessus du footer */
-    .floating-button {
-        display: flex;
-        justify-content: flex-end; /* Positionné vers la droite */
-        margin: 0 20px 60px 0; /* 60px au-dessus du footer et espace à droite */
-    }
-
-    .floating-button a {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #ff6700; /* Couleur de fond */
-        color: #000; /* Couleur du texte */
-        font-weight: bold;
-        text-decoration: none;
-        border-radius: 5px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Ombre */
-        transition: all 0.3s ease; /* Transition douce pour l'interaction */
-    }
-
-    .floating-button a:hover {
-        background-color: #e65c00; /* Couleur de fond au survol */
-        color: #fff; /* Texte blanc au survol */
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Ombre accentuée */
-    }
-
-    /* Bannière d'installation */
-    .install-banner {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background-color: #1e1e1e;
-        border: 2px solid #444;
+      /* Styles spécifiques pour la prévisualisation */
+      #previewContainer {
+        width: 90%; /* Presque toute la largeur de l'écran */
+        height: 100vh; /* 80% de la hauteur de la fenêtre */
+        margin: 20px auto; /* Centré horizontalement et espacement vertical */
+        border: 2px solid #444; /* Bordure pour démarquer */
         border-radius: 8px;
-        padding: 20px;
-        margin: 20px auto;
-        max-width: 600px;
-        text-align: center;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        background-color: #1e1e1e; /* Fond sombre */
+        overflow: auto; /* Défilement interne si nécessaire */
+        padding: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Ombre pour un effet visuel */
+      }
+    
+      #previewContainer img {
+        display: block;
+        max-width: 100%; /* L'image s'adapte à la largeur du conteneur */
+        height: auto; /* Maintient le ratio d'aspect */
+        margin: 0 auto; /* Centrer l'image horizontalement */
+      }
+  
+    #iframeResult {
+      margin-top: 20px;
+      text-align: center;
     }
-
-    .install-banner p {
-        font-size: 1.2rem;
-        color: #f4f4f9;
-        margin-bottom: 15px;
-        line-height: 1.5;
+  
+    #convertResult {
+      margin-top: 20px;
+      text-align: center;
     }
-
-    .install-banner button {
-        background-color: #ff6700;
-        color: black;
-        font-size: 16px;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(255, 103, 0, 0.2);
+  
+    #convertResult a {
+      color: #ff6700;
+      text-decoration: underline;
     }
-
-    .install-banner button:hover {
-        background-color: #e65c00;
-        box-shadow: 0 6px 10px rgba(255, 103, 0, 0.3);
+  
+          /* Bannière d'installation */
+  .install-banner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #1e1e1e; /* Fond gris foncé */
+    border: 2px solid #444; /* Bordure gris foncé */
+    border-radius: 8px; /* Coins arrondis */
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Ombre */
+  }
+  
+  .install-banner p {
+    font-size: 1.2rem; /* Texte légèrement plus grand */
+    color: #f4f4f9; /* Texte clair */
+    margin-bottom: 15px;
+    line-height: 1.5; /* Espacement entre les lignes */
+  }
+  
+  .install-banner button {
+    background-color: #ff6700; /* Orange vif */
+    color: black; /* Texte noir */
+    font-size: 16px; /* Taille de la police */
+    padding: 10px 20px; /* Espacement interne */
+    border: none;
+    border-radius: 5px; /* Coins arrondis */
+    cursor: pointer;
+    transition: all 0.3s ease; /* Transition douce */
+    box-shadow: 0 4px 6px rgba(255, 103, 0, 0.2); /* Ombre subtile */
+  }
+  
+  .install-banner button:hover {
+    background-color: #e65c00; /* Orange plus sombre au survol */
+    box-shadow: 0 6px 10px rgba(255, 103, 0, 0.3); /* Ombre au survol */
+  }
+  
+  .install-banner button:active {
+    background-color: #cc5200; /* Orange encore plus sombre au clic */
+    box-shadow: inset 0 3px 6px rgba(255, 103, 0, 0.4); /* Ombre intérieure */
+  }
+  /* Responsive design */
+  @media (max-width: 768px) {
+    nav ul {
+      justify-content: space-between;
+      padding: 5px;
     }
-
-    /* Pied de page */
-    footer {
-        text-align: center;
-        background-color: #ff6700;
-        color: black;
-        padding: 10px 0;
-        margin-top: 20px;
+  
+    nav ul li {
+      flex: 1;
+      margin: 2px;
     }
+  
+    nav ul li a {
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+  
+    button {
+      width: 100%;
+      padding: 12px;
+    }
+  
+    input[type="text"],
+    input[type="email"],
+    input[type="url"],
+    input[type="file"],
+    textarea {
+      font-size: 16px;
+      padding: 12px -30px;
+    }
+  
+    form {
+      padding: 15px;
+    }
+  
+    main iframe {
+      height: 90vh;
+      margin-top: 35%;
+    }
+  
+    #previewContainer {
+      width: 100%; /* Prend toute la largeur sur petit écran */
+      height: 70vh; /* Réduit légèrement la hauteur */
+      }
+      .install-banner {
+        padding: 15px;
+      }
+    
+      .install-banner p {
+        font-size: 1rem;
+      }
+    
+      .install-banner button {
+        width: 100%; /* Bouton prend toute la largeur */
+        padding: 12px;
+      }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-        .install-banner {
-            padding: 15px;
-        }
-
-        .install-banner p {
-            font-size: 1rem;
-        }
-
-        .install-banner button {
-            width: 100%;
-            padding: 12px;
-        }
-        form {
-            padding: 15px;
-          }
-
-          /* Responsive Design */
-        .floating-button {
+      .floating-button {
         justify-content: center; /* Bouton centré pour les petits écrans */
         margin: 0 0 60px 0; /* Supprime la marge latérale */
         }
