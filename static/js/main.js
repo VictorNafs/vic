@@ -128,15 +128,19 @@ function initializePreviewPage() {
     const previewContainer = document.getElementById('previewContainer');
     const fileError = document.getElementById('fileError');
 
-    if (!previewForm) return; // Skip if not on preview page
+    // Vérifiez si les éléments nécessaires existent
+    if (!previewForm || !previewContainer) {
+        console.warn("Preview page elements not found. Skipping preview initialization.");
+        return; // Si les éléments n'existent pas, arrêtez l'exécution
+    }
 
     previewForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const fileInput = document.getElementById('vicPreviewFile');
-        if (!fileInput.files.length) {
-            if (fileError) fileError.style.display = "block";
-            fileInput.focus();
+        if (!fileInput || !fileInput.files.length) {
+            if (fileError) fileError.style.display = "block"; // Afficher l'erreur uniquement si l'élément existe
+            fileInput?.focus();
             return;
         }
         if (fileError) fileError.style.display = "none";
@@ -159,7 +163,7 @@ function initializePreviewPage() {
                 img.loading = "lazy";
                 img.alt = "Prévisualisation du fichier VIC";
 
-                previewContainer.innerHTML = '';
+                previewContainer.innerHTML = ''; // Vide le conteneur avant d'ajouter une nouvelle image
                 previewContainer.appendChild(img);
             } else {
                 alert('Erreur lors de la prévisualisation.');
@@ -171,6 +175,7 @@ function initializePreviewPage() {
         }
     });
 }
+
 
 // Iframe Page (iframe.html)
 function initializeIframePage() {
