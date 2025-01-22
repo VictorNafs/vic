@@ -45,11 +45,11 @@ function initializeConvertPage() {
 
         const fileInput = document.getElementById('pngFile');
         if (!fileInput.files.length) {
-            fileError.style.display = "block";
+            if (fileError) fileError.style.display = "block";
             fileInput.focus();
             return;
         }
-        fileError.style.display = "none";
+        if (fileError) fileError.style.display = "none";
 
         showLoader();
 
@@ -90,11 +90,11 @@ function initializeMetadataPage() {
 
         const fileInput = document.getElementById('vicFile');
         if (!fileInput.files.length) {
-            fileError.style.display = "block";
+            if (fileError) fileError.style.display = "block";
             fileInput.focus();
             return;
         }
-        fileError.style.display = "none";
+        if (fileError) fileError.style.display = "none";
 
         showLoader();
 
@@ -128,25 +128,23 @@ function initializePreviewPage() {
     const previewContainer = document.getElementById('previewContainer');
     const fileError = document.getElementById('fileError');
 
-    if (!previewForm || !previewContainer) return; // Skip if not on preview page
+    if (!previewForm) return; // Skip if not on preview page
 
     previewForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const fileInput = document.getElementById('vicPreviewFile');
         if (!fileInput.files.length) {
-            if (fileError) fileError.style.display = "block"; // Show error if no file selected
+            if (fileError) fileError.style.display = "block";
             fileInput.focus();
             return;
         }
+        if (fileError) fileError.style.display = "none";
 
-        if (fileError) fileError.style.display = "none"; // Hide error if file is selected
+        showLoader();
 
-        showLoader(); // Show the loader during processing
-
-        const file = fileInput.files[0];
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', fileInput.files[0]);
 
         try {
             const response = await fetch('/preview', {
@@ -158,18 +156,18 @@ function initializePreviewPage() {
                 const blob = await response.blob();
                 const img = document.createElement('img');
                 img.src = URL.createObjectURL(blob);
-                img.loading = "lazy"; // Enable lazy loading
+                img.loading = "lazy";
                 img.alt = "Prévisualisation du fichier VIC";
 
-                previewContainer.innerHTML = ''; // Clear container before adding a new image
+                previewContainer.innerHTML = '';
                 previewContainer.appendChild(img);
             } else {
-                alert('Erreur lors de la prévisualisation du fichier.');
+                alert('Erreur lors de la prévisualisation.');
             }
         } catch (error) {
             alert("Une erreur s'est produite lors de la prévisualisation.");
         } finally {
-            hideLoader(); // Hide the loader after processing
+            hideLoader();
         }
     });
 }
@@ -190,11 +188,11 @@ function initializeIframePage() {
         const url = urlInput.value.trim();
 
         if (!url || !/^https?:\/\/.+\..+/.test(url)) {
-            urlError.style.display = "block";
+            if (urlError) urlError.style.display = "block";
             urlInput.focus();
             return;
         }
-        urlError.style.display = "none";
+        if (urlError) urlError.style.display = "none";
 
         showLoader();
 
@@ -219,4 +217,3 @@ document.addEventListener('DOMContentLoaded', () => {
     initializePreviewPage();
     initializeIframePage();
 });
-
