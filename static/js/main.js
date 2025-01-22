@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Show the loader when iframe starts loading
     links.forEach(link => {
         link.addEventListener('click', () => {
-            if (iframe && loader) {
+            if (iframe) {
                 showLoader();
             }
         });
@@ -128,23 +128,25 @@ function initializePreviewPage() {
     const previewContainer = document.getElementById('previewContainer');
     const fileError = document.getElementById('fileError');
 
-    if (!previewForm) return; // Skip if not on preview page
+    if (!previewForm || !previewContainer) return; // Skip if not on preview page
 
     previewForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const fileInput = document.getElementById('vicPreviewFile');
         if (!fileInput.files.length) {
-            fileError.style.display = "block";
+            if (fileError) fileError.style.display = "block"; // Show error if no file selected
             fileInput.focus();
             return;
         }
-        fileError.style.display = "none";
 
-        showLoader();
+        if (fileError) fileError.style.display = "none"; // Hide error if file is selected
 
+        showLoader(); // Show the loader during processing
+
+        const file = fileInput.files[0];
         const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
+        formData.append('file', file);
 
         try {
             const response = await fetch('/preview', {
@@ -156,18 +158,18 @@ function initializePreviewPage() {
                 const blob = await response.blob();
                 const img = document.createElement('img');
                 img.src = URL.createObjectURL(blob);
-                img.loading = "lazy";
+                img.loading = "lazy"; // Enable lazy loading
                 img.alt = "Prévisualisation du fichier VIC";
 
-                previewContainer.innerHTML = '';
+                previewContainer.innerHTML = ''; // Clear container before adding a new image
                 previewContainer.appendChild(img);
             } else {
-                alert('Erreur lors de la prévisualisation.');
+                alert('Erreur lors de la prévisualisation du fichier.');
             }
         } catch (error) {
             alert("Une erreur s'est produite lors de la prévisualisation.");
         } finally {
-            hideLoader();
+            hideLoader(); // Hide the loader after processing
         }
     });
 }
