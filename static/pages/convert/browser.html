@@ -42,28 +42,7 @@
 
 </footer>
 
-  <script>
-    // Gestion de l'installation PWA
-    let deferredPrompt;
+<script src="/static/js/main.js" defer></script>
 
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-
-      const installButton = document.getElementById("install-button");
-      if (installButton) {
-        installButton.style.display = "block";
-        installButton.addEventListener("click", () => {
-          deferredPrompt.prompt();
-          deferredPrompt.userChoice.then((choiceResult) => {
-            console.log(choiceResult.outcome === "accepted" 
-              ? "PWA installée avec succès." 
-              : "Installation PWA refusée.");
-            deferredPrompt = null;
-          });
-        });
-      }
-    });
-  </script>
 </body>
 </html>

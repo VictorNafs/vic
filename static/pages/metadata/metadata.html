@@ -54,62 +54,7 @@
 
 </footer>
 
-<script defer>
-  document.addEventListener('DOMContentLoaded', () => {
-    const metadataForm = document.getElementById('metadataForm');
-    const metadataResult = document.getElementById('metadataResult');
-    const loader = document.getElementById('loader');
-    const fileError = document.getElementById('fileError');
-
-    // Fonction pour afficher le loader
-    function showLoader() {
-      if (loader) loader.style.display = "flex";
-    }
-
-    // Fonction pour masquer le loader
-    function hideLoader() {
-      if (loader) loader.style.display = "none";
-    }
-
-    // Gestion de la soumission du formulaire
-    metadataForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      // Vérifie si un fichier a été sélectionné
-      const fileInput = document.getElementById('vicFile');
-      if (!fileInput.files.length) {
-        fileError.style.display = "block"; // Affiche une erreur si aucun fichier
-        fileInput.focus();
-        return;
-      }
-      fileError.style.display = "none"; // Masque l'erreur si un fichier est sélectionné
-
-      showLoader(); // Affiche le loader pendant l'extraction
-
-      const formData = new FormData();
-      formData.append('file', fileInput.files[0]);
-
-      try {
-        const response = await fetch('/metadata', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          metadataResult.textContent = JSON.stringify(data.metadata, null, 2); // Affiche les métadonnées formatées
-          metadataResult.style.display = 'block';
-        } else {
-          alert('Erreur lors de l\'extraction des métadonnées.');
-        }
-      } catch (error) {
-        alert("Une erreur s'est produite lors de l'extraction des métadonnées.");
-      } finally {
-        hideLoader(); // Masque le loader une fois le traitement terminé
-      }
-    });
-  });
-</script>
+<script src="/static/js/main.js" defer></script>
 
 </body>
 </html>
