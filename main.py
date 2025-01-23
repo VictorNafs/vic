@@ -3,15 +3,14 @@ from fastapi import FastAPI, File, UploadFile, Query, Header
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from tempfile import NamedTemporaryFile
-from convert_to_my_format import convert_to_my_format, compress_image, is_supported_image
+from convert_to_my_format import convert_to_my_format
+from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import HTTPException
 import requests
 import validators
 import struct
 import json
 import io
-import base64
-import re
 
 app = FastAPI()
 
@@ -36,43 +35,42 @@ def serve_homepage(user_agent: str = Header(default="")):
         print(f"Error serving homepage: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+@app.get("/service-worker.js", include_in_schema=False)
+async def serve_service_worker():
+    """
+    Serve the service worker file.
+    """
+    return FileResponse(os.path.join(STATIC_DIR, "service-worker.js"))
+
+from fastapi import Header
+
 @app.post("/convert")
 async def convert_to_vic(file: UploadFile, for_iframe: bool = False):
     """
-    Convert an image file to the VIC format with optional compression for large files.
+    Convert a PNG file to the VIC format.
     """
-    MAX_FILE_SIZE_MB = 100  # Limite de taille augmentée à 100 Mo
-    max_file_size_bytes = MAX_FILE_SIZE_MB * 1024 * 1024
+    if not file.filename.endswith(".png"):
+        return JSONResponse(status_code=400, content={"error": "Only PNG files are supported."})
 
-    if file.size > max_file_size_bytes:
-        return JSONResponse(
-            status_code=400,
-            content={"error": f"The file size exceeds the maximum limit of {MAX_FILE_SIZE_MB} MB."},
-        )
+    if file.size == 0:
+        return JSONResponse(status_code=400, content={"error": "The uploaded file is empty."})
 
-    with NamedTemporaryFile(delete=False) as temp_file:
+    with NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
         temp_file.write(await file.read())
         temp_file_path = temp_file.name
 
+    output_file_path = temp_file_path.replace(".png", ".vic")
+
     try:
-        if not is_supported_image(temp_file_path):
-            return JSONResponse(
-                status_code=400, content={"error": "Unsupported or corrupted image format."}
-            )
+        # Pass the `for_iframe` argument to the conversion function if needed
+        convert_to_my_format(temp_file_path, output_file_path, for_iframe=for_iframe)
 
-        compressed_path = compress_image(temp_file_path, max_size_in_mb=MAX_FILE_SIZE_MB)
-
-        output_file_path = compressed_path.replace(os.path.splitext(compressed_path)[1], ".vic")
-
-        convert_to_my_format(compressed_path, output_file_path, for_iframe=for_iframe)
-
+        # Return the VIC file as a response
         return FileResponse(output_file_path, media_type="application/octet-stream", filename="output.vic")
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": f"Conversion failed: {str(e)}"})
     finally:
         os.remove(temp_file_path)
-        if "compressed_path" in locals() and compressed_path != temp_file_path and os.path.exists(compressed_path):
-            os.remove(compressed_path)
 
 @app.post("/metadata")
 async def extract_metadata(file: UploadFile):
@@ -88,7 +86,8 @@ async def extract_metadata(file: UploadFile):
 
     try:
         with open(temp_file_path, "rb") as f:
-            f.seek(12)  # Skip signature and version
+            # Skip signature and version
+            f.seek(12)
             metadata_size = struct.unpack("I", f.read(4))[0]
             metadata = json.loads(f.read(metadata_size))
             return JSONResponse(content={"metadata": metadata})
@@ -112,6 +111,7 @@ async def preview_vic(file: UploadFile):
         temp_file_path = temp_file.name
 
     try:
+        # Read the VIC file and extract PNG data
         with open(temp_file_path, "rb") as f:
             f.seek(12)  # Skip signature and version
             metadata_size = struct.unpack("I", f.read(4))[0]
@@ -119,65 +119,93 @@ async def preview_vic(file: UploadFile):
             img_data_size = struct.unpack("I", f.read(4))[0]
             img_data = f.read(img_data_size)
 
+        # Stream PNG data directly without saving to disk
         return StreamingResponse(io.BytesIO(img_data), media_type="image/png")
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
     finally:
         os.remove(temp_file_path)
 
+import base64
+import re
+
 @app.post("/fetch-and-convert-vic")
 def fetch_and_convert_vic(file_url: str, for_iframe: bool = False):
     """
-    Download an image from a public URL or decode base64 data, and convert it to VIC format.
+    Download a PNG image from a public URL or decode a base64 URL, and convert it to VIC format.
+
+    Parameters:
+    - file_url (str): Public URL of the PNG image or base64 encoded data.
+    - for_iframe (bool): Optimize the image for iframe display if True.
+
+    Returns:
+    - The generated .vic file as a response.
+    
+    Note:
+    If using base64, the image must be in PNG format.
     """
     temp_file_path = None
     output_file_path = None
 
     try:
+        # Handle Base64 input
         if file_url.startswith("data:image/"):
-            match = re.match(r"data:image/(.+);base64,(.+)", file_url)
+            # Validate and extract Base64 image data
+            match = re.match(r"data:image/(png);base64,(.+)", file_url)
             if not match:
                 raise HTTPException(status_code=400, detail="Invalid base64 image format.")
+            
             image_format = match.group(1)
+            if image_format != "png":
+                raise HTTPException(status_code=400, detail="Only PNG images are supported for base64 input.")
+            
+            # Decode Base64 image data
             image_data = base64.b64decode(match.group(2))
-
-            if image_format not in ["png", "jpeg", "bmp", "gif", "tiff"]:
-                raise HTTPException(status_code=400, detail=f"Unsupported format: {image_format}")
-
-            with NamedTemporaryFile(delete=False, suffix=f".{image_format}") as temp_file:
+            
+            # Save the decoded data as a temporary PNG file
+            with NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
                 temp_file.write(image_data)
                 temp_file_path = temp_file.name
         else:
+            # Handle URL input
             if not validators.url(file_url):
                 raise HTTPException(status_code=400, detail="Invalid URL provided.")
+
+            # Fetch the image from the URL
             response = requests.get(file_url, stream=True)
-            response.raise_for_status()
+            response.raise_for_status()  # Ensure the request was successful
 
-            content_type = response.headers.get("Content-Type", "")
-            if not content_type.startswith("image/"):
-                raise HTTPException(status_code=400, detail="The provided URL does not point to an image.")
+            # Check Content-Type header
+            content_type = response.headers.get('Content-Type', '')
+            if 'image/png' not in content_type:
+                raise HTTPException(status_code=400, detail="The provided URL does not point to a PNG image.")
 
-            extension = content_type.split("/")[1]
-            with NamedTemporaryFile(delete=False, suffix=f".{extension}") as temp_file:
+            # Save the downloaded PNG image
+            with NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
                 for chunk in response.iter_content(chunk_size=8192):
                     temp_file.write(chunk)
                 temp_file_path = temp_file.name
 
-        if not is_supported_image(temp_file_path):
-            raise HTTPException(status_code=400, detail="Unsupported or corrupted image format.")
+        # Define the output path for the VIC file
+        output_file_path = temp_file_path.replace(".png", ".vic")
 
-        output_file_path = temp_file_path.replace(os.path.splitext(temp_file_path)[1], ".vic")
+        # Convert the image to VIC format
         convert_to_my_format(temp_file_path, output_file_path, for_iframe=for_iframe)
 
+        # Return the generated VIC file
         return FileResponse(output_file_path, media_type="application/octet-stream", filename="output.vic")
+
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching the file: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error during conversion: {str(e)}")
     finally:
+        # Clean up temporary files
         if temp_file_path and os.path.exists(temp_file_path):
             os.remove(temp_file_path)
         if output_file_path and os.path.exists(output_file_path):
             os.remove(output_file_path)
-
+            
 @app.get("/generate-iframe")
 def generate_iframe(
     file_url: str = Query(..., description="Public URL where the .vic file is hosted."),
@@ -194,6 +222,7 @@ def generate_iframe(
     """
     return HTMLResponse(content=iframe_code)
 
+# Héberger visionneuse.html à la racine
 @app.get("/vic-viewer.html")
 async def serve_viewer():
     return FileResponse("vic-viewer.html")
