@@ -86,6 +86,52 @@ async def convert_to_vic(file: UploadFile, for_iframe: bool = False):
         if 'gzip_path' in locals() and os.path.exists(gzip_path):
             os.remove(gzip_path)
 
+def compress_image(input_file, max_size_in_mb=5):
+    """
+    Compress an image to ensure it does not exceed a specified size.
+    """
+    max_size_in_bytes = max_size_in_mb * 1024 * 1024
+    with Image.open(input_file) as img:
+        format = img.format  # Detect original format
+        quality = 85  # Adjust initial quality for compression
+        temp_buffer = io.BytesIO()
+
+        # Resizing extremely large images before compression
+        max_initial_size = 4000
+        original_width, original_height = img.size
+        if original_width > max_initial_size or original_height > max_initial_size:
+            print("Compressing and resizing very large image before processing...")
+            scale_factor = min(max_initial_size / original_width, max_initial_size / original_height)
+            img = img.resize((int(original_width * scale_factor), int(original_height * scale_factor)), Image.LANCZOS)
+
+        # Save based on format with reduced quality for JPEG
+        if format.lower() in ["jpeg", "jpg"]:
+            img.save(temp_buffer, format="JPEG", quality=quality, optimize=True)
+        elif format.lower() == "png":
+            img.save(temp_buffer, format="PNG", optimize=True, compress_level=9)
+        else:
+            img.save(temp_buffer, format=format)
+
+        size_in_bytes = temp_buffer.tell()
+
+        # Iteratively reduce quality for large files
+        while size_in_bytes > max_size_in_bytes and quality > 10:
+            temp_buffer.seek(0)
+            if format.lower() in ["jpeg", "jpg"]:
+                img.save(temp_buffer, format="JPEG", quality=quality)
+            else:
+                img.save(temp_buffer, format=format)
+            size_in_bytes = temp_buffer.tell()
+            quality -= 10
+
+        # Save the compressed image to a temporary file
+        temp_output = NamedTemporaryFile(delete=False, suffix=f".{format.lower()}")
+        temp_output.write(temp_buffer.getvalue())
+        temp_output.close()
+
+        return temp_output.name
+
+
 @app.post("/metadata")
 async def extract_metadata(file: UploadFile):
     """
