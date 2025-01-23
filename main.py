@@ -22,11 +22,10 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 @app.get("/")
 def serve_homepage(user_agent: str = Header(default="")):
     """
-    Serve main-page.html with dynamic default iframe based on environment.
+    Serve main-page.html with default iframe pointing to convert.html.
     """
     try:
-        # Detect if the app is running in PWA mode
-        iframe_src = "/static/pages/convert/convert.html" if "standalone" in user_agent else "/static/pages/convert/browser.html"
+        iframe_src = "/static/pages/convert/convert.html"  # Always redirect to convert.html
         with open(os.path.join(STATIC_DIR, "main-page.html"), "r", encoding="utf-8") as file:
             main_page = file.read()
         # Replace the placeholder with the appropriate iframe source
@@ -48,7 +47,7 @@ from fastapi import Header
 @app.post("/convert")
 async def convert_to_vic(file: UploadFile, for_iframe: bool = False):
     """
-    Convert a PNG file to the VIC format.
+    Convert a PNG file to the VIC format with optional compression for large files.
     """
     if not file.filename.endswith(".png"):
         return JSONResponse(status_code=400, content={"error": "Only PNG files are supported."})
@@ -60,18 +59,27 @@ async def convert_to_vic(file: UploadFile, for_iframe: bool = False):
         temp_file.write(await file.read())
         temp_file_path = temp_file.name
 
-    output_file_path = temp_file_path.replace(".png", ".vic")
-
     try:
-        # Pass the `for_iframe` argument to the conversion function if needed
+        # Check the file size and compress if necessary
+        max_file_size_mb = 5  # Define max file size in MB
+        if os.path.getsize(temp_file_path) > max_file_size_mb * 1024 * 1024:
+            from convert_to_my_format import compress_image
+            compressed_path = compress_image(temp_file_path, max_size_in_mb=max_file_size_mb)
+            temp_file_path = compressed_path  # Use the compressed file for conversion
+
+        output_file_path = temp_file_path.replace(".png", ".vic")
+
+        # Convert the image to VIC format
         convert_to_my_format(temp_file_path, output_file_path, for_iframe=for_iframe)
 
-        # Return the VIC file as a response
         return FileResponse(output_file_path, media_type="application/octet-stream", filename="output.vic")
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": f"Conversion failed: {str(e)}"})
     finally:
         os.remove(temp_file_path)
+        if 'compressed_path' in locals() and os.path.exists(compressed_path):
+            os.remove(compressed_path)
+
 
 @app.post("/metadata")
 async def extract_metadata(file: UploadFile):

@@ -4,6 +4,8 @@ import json
 import os
 from PIL import Image, ImageOps
 import io
+from tempfile import NamedTemporaryFile
+
 
 def convert_to_my_format(input_file, output_file, quality=75, max_width=2000, max_height=2000, for_iframe=False):
     try:
@@ -80,6 +82,33 @@ def convert_to_my_format(input_file, output_file, quality=75, max_width=2000, ma
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
+
+def compress_image(input_file, max_size_in_mb=5):
+    """
+    Compress an image to ensure it does not exceed a specified size.
+    """
+    max_size_in_bytes = max_size_in_mb * 1024 * 1024
+    with Image.open(input_file) as img:
+        quality = 95  # Start with high quality
+        temp_buffer = io.BytesIO()
+        img.save(temp_buffer, format="PNG", optimize=True)
+        size_in_bytes = temp_buffer.tell()
+
+        # Reduce quality until size is within limit
+        while size_in_bytes > max_size_in_bytes and quality > 10:
+            temp_buffer.seek(0)
+            img.save(temp_buffer, format="PNG", optimize=True, quality=quality)
+            size_in_bytes = temp_buffer.tell()
+            quality -= 10
+
+        # Save the compressed image to a temporary file
+        temp_output = NamedTemporaryFile(delete=False, suffix=".png")
+        temp_output.write(temp_buffer.getvalue())
+        temp_output.close()
+
+        return temp_output.name
+
+
 # Command-line interface
 def main():
     parser = argparse.ArgumentParser(description="Convert a PNG image to VIC format.")
@@ -92,7 +121,13 @@ def main():
 
     args = parser.parse_args()
 
-    convert_to_my_format(args.input_file, args.output_file, args.quality, args.max_width, args.max_height, args.for_iframe)
+    # Compress the input file if necessary
+    compressed_file = compress_image(args.input_file, max_size_in_mb=5)
+    try:
+        convert_to_my_format(compressed_file, args.output_file, args.quality, args.max_width, args.max_height, args.for_iframe)
+    finally:
+        os.remove(compressed_file)  # Clean up temporary compressed file
+
 
 if __name__ == "__main__":
     main()
