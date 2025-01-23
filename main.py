@@ -56,7 +56,7 @@ async def convert_to_vic(file: UploadFile, for_iframe: bool = False):
         if not is_supported_image(temp_file_path):
             return JSONResponse(status_code=400, content={"error": "Unsupported or corrupted image format."})
 
-        max_file_size_mb = 50  # Increase max file size for processing
+        max_file_size_mb = 100  # Increase max file size for processing
         compressed_path = (
             compress_image(temp_file_path, max_size_in_mb=max_file_size_mb)
             if os.path.getsize(temp_file_path) > max_file_size_mb * 1024 * 1024
