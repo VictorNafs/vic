@@ -15,7 +15,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@votre_nom_twitter">
   <meta name="twitter:title" content="VicFile.io - Convertir des Fichiers VIC">
-  <meta name="twitter:description" content="Utilisez VicFile.io pour convertir des images PNG ou JPEG au format VIC en quelques clics.">
+  <meta name="twitter:description" content="Utilisez VicFile.io pour convertir des images PNG, JPEG, BMP ou TIFF au format VIC en quelques clics.">
   <meta name="twitter:image" content="/static/images/logovic_large.png">
   <meta name="robots" content="noindex">
   <link rel="canonical" href="https://vicfile.io/">
@@ -27,39 +27,39 @@
 <body>
 
 <header>
-
+  <h1>Convertisseur d'images au format VIC</h1>
 </header>
 
-  <main>
-    <section aria-labelledby="convertFormSection">
-      <h2 id="convertFormSection">Formulaire de conversion</h2>
-      <form id="convertForm" aria-label="Formulaire de conversion de fichiers PNG">
-        <label for="pngFile">Fichier PNG :</label>
-        <input 
-          type="file" 
-          id="pngFile" 
-          name="file" 
-          accept=".png" 
-          required 
-          aria-describedby="fileError" 
-          autocomplete="off">
-        <span id="fileError" style="display: none; color: red;" role="alert">Veuillez sélectionner un fichier PNG.</span>
-        <button type="submit">Convertir</button>
-      </form>
-    </section>
+<main>
+  <section aria-labelledby="convertFormSection">
+    <h2 id="convertFormSection">Formulaire de conversion</h2>
+    <form id="convertForm" aria-label="Formulaire de conversion de fichiers images">
+      <label for="imageFile">Fichier image :</label>
+      <input 
+        type="file" 
+        id="imageFile" 
+        name="file" 
+        accept=".png, .jpg, .jpeg, .bmp, .gif, .tiff" 
+        required 
+        aria-describedby="fileError" 
+        autocomplete="off">
+      <span id="fileError" style="display: none; color: red;" role="alert">Veuillez sélectionner un fichier image valide.</span>
+      <button type="submit">Convertir</button>
+    </form>
+  </section>
 
-    <section id="convertResult" style="display: none;" aria-labelledby="downloadSection">
-      <h2 id="downloadSection" hidden>Résultat de la conversion</h2>
-      <a id="vicDownloadLink" href="#" download="output.vic">Télécharger le fichier VIC</a>
-    </section>
+  <section id="convertResult" style="display: none;" aria-labelledby="downloadSection">
+    <h2 id="downloadSection" hidden>Résultat de la conversion</h2>
+    <a id="vicDownloadLink" href="#" download="output.vic">Télécharger le fichier VIC</a>
+  </section>
 
-    <div id="loader" class="loader-overlay" role="alert" aria-live="polite" style="display: none;">
-      <div class="spinner" aria-hidden="true"></div>
-    </div>
-  </main>
+  <div id="loader" class="loader-overlay" role="alert" aria-live="polite" style="display: none;">
+    <div class="spinner" aria-hidden="true"></div>
+  </div>
+</main>
 
 <footer>
-
+  <p>&copy; 2025 VicFile.io - Tous droits réservés.</p>
 </footer>
 
 <script defer>
@@ -82,18 +82,29 @@
     convertForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const fileInput = document.getElementById('pngFile');
+      const fileInput = document.getElementById('imageFile');
       if (!fileInput.files.length) {
         fileError.style.display = "block";
         fileInput.focus();
         return;
       }
-      fileError.style.display = "none";
 
+      const file = fileInput.files[0];
+      const allowedExtensions = [".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff"];
+      const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+
+      if (!allowedExtensions.includes(fileExtension)) {
+        fileError.textContent = "Format non supporté. Formats acceptés : PNG, JPEG, BMP, GIF, TIFF.";
+        fileError.style.display = "block";
+        fileInput.focus();
+        return;
+      }
+
+      fileError.style.display = "none";
       showLoader();
 
       const formData = new FormData();
-      formData.append('file', fileInput.files[0]);
+      formData.append('file', file);
 
       try {
         const response = await fetch('/convert', {
@@ -109,7 +120,7 @@
           alert('Erreur lors de la conversion.');
         }
       } catch (error) {
-        alert('Une erreur s\'est produite.');
+        alert('Une erreur s\'est produite. Veuillez réessayer.');
       } finally {
         hideLoader();
       }

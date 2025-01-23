@@ -10,11 +10,12 @@ from tempfile import NamedTemporaryFile
 def convert_to_my_format(input_file, output_file, quality=75, max_width=2000, max_height=2000, for_iframe=False):
     try:
         print(f"Processing input file: {input_file}")
-        
-        # Open the image file
+
+        # Open the image file and validate the format
         with Image.open(input_file) as img:
             original_width, original_height = img.size
-            print(f"Original dimensions: {original_width}x{original_height}")
+            format = img.format  # Detect input format (e.g., PNG, JPEG, etc.)
+            print(f"Original dimensions: {original_width}x{original_height}, Format: {format}")
 
             # Detect full-page screenshots
             ratio = original_height / original_width
@@ -44,7 +45,7 @@ def convert_to_my_format(input_file, output_file, quality=75, max_width=2000, ma
                     img = ImageOps.contain(img, (max_width, max_height))
                     print(f"Resized dimensions: {img.size[0]}x{img.size[1]}")
 
-            # Save the image as PNG
+            # Save the image as PNG in memory (universal format for processing)
             png_buffer = io.BytesIO()
             try:
                 img.save(png_buffer, format="PNG")
@@ -62,7 +63,7 @@ def convert_to_my_format(input_file, output_file, quality=75, max_width=2000, ma
             "type": "full_page_screenshot" if is_full_page_screenshot else "iframe_image" if for_iframe else "regular_image",
             "ratio": ratio,
             "dimensions": {"width": img.size[0], "height": img.size[1]},
-            "format": "PNG"  # Indicate PNG format
+            "format": format  # Include original format
         }
         metadata_json = json.dumps(metadata).encode('utf-8')
         print(f"Metadata: {metadata}")
@@ -89,30 +90,52 @@ def compress_image(input_file, max_size_in_mb=5):
     """
     max_size_in_bytes = max_size_in_mb * 1024 * 1024
     with Image.open(input_file) as img:
+        format = img.format  # Detect original format
         quality = 95  # Start with high quality
         temp_buffer = io.BytesIO()
-        img.save(temp_buffer, format="PNG", optimize=True)
+
+        # Save based on format
+        if format.lower() in ["jpeg", "jpg"]:
+            img.save(temp_buffer, format="JPEG", quality=quality)
+        elif format.lower() in ["png"]:
+            img.save(temp_buffer, format="PNG", optimize=True)
+        else:
+            img.save(temp_buffer, format=format)  # Fallback for other formats
+
         size_in_bytes = temp_buffer.tell()
 
-        # Reduce quality until size is within limit
+        # Reduce quality iteratively for large files
         while size_in_bytes > max_size_in_bytes and quality > 10:
             temp_buffer.seek(0)
-            img.save(temp_buffer, format="PNG", optimize=True, quality=quality)
+            if format.lower() in ["jpeg", "jpg"]:
+                img.save(temp_buffer, format="JPEG", quality=quality)
+            else:
+                img.save(temp_buffer, format=format)  # No quality control for some formats
             size_in_bytes = temp_buffer.tell()
             quality -= 10
 
         # Save the compressed image to a temporary file
-        temp_output = NamedTemporaryFile(delete=False, suffix=".png")
+        temp_output = NamedTemporaryFile(delete=False, suffix=f".{format.lower()}")
         temp_output.write(temp_buffer.getvalue())
         temp_output.close()
 
         return temp_output.name
 
+def is_supported_image(file_path):
+    """
+    Check if a file is a supported image format.
+    """
+    try:
+        with Image.open(file_path) as img:
+            img.verify()  # Verify that it's a valid image
+        return True
+    except Exception:
+        return False
 
 # Command-line interface
 def main():
-    parser = argparse.ArgumentParser(description="Convert a PNG image to VIC format.")
-    parser.add_argument("input_file", help="Path to the input file (PNG).")
+    parser = argparse.ArgumentParser(description="Convert an image to VIC format.")
+    parser.add_argument("input_file", help="Path to the input file (image).")
     parser.add_argument("output_file", help="Path to the output file (VIC).")
     parser.add_argument("--quality", type=int, default=75, help="WebP compression quality (default: 75).")
     parser.add_argument("--max_width", type=int, default=2000, help="Maximum width (default: 2000 pixels).")
