@@ -24,7 +24,7 @@ def convert_to_my_format(input_file, output_file, quality=75, max_width=2000, ma
                 format = "PNG"
 
             # Immediate resizing for extremely large images
-            max_initial_size = 3000  # Reduce size early to optimize memory usage
+            max_initial_size = 4000
             if original_width > max_initial_size or original_height > max_initial_size:
                 print("Image is extremely large, resizing for memory optimization...")
                 scale_factor = min(max_initial_size / original_width, max_initial_size / original_height)
@@ -84,7 +84,7 @@ def convert_to_my_format(input_file, output_file, quality=75, max_width=2000, ma
         print(f"An unexpected error occurred: {e}")
 
 
-def compress_image(input_file, max_size_in_mb=50):
+def compress_image(input_file, max_size_in_mb=5):
     """
     Compress an image to ensure it does not exceed a specified size.
     """
@@ -143,19 +143,4 @@ def is_supported_image(file_path):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Convert an image to VIC format.")
-    parser.add_argument("input_file", help="Path to the input file (image).")
-    parser.add_argument("output_file", help="Path to the output file (VIC).")
-    parser.add_argument("--quality", type=int, default=75, help="WebP compression quality (default: 75).")
-    parser.add_argument("--max_width", type=int, default=2000, help="Maximum width (default: 2000 pixels).")
-    parser.add_argument("--max_height", type=int, default=2000, help="Maximum height (default: 2000 pixels).")
-    parser.add_argument("--for_iframe", action="store_true", help="Optimize dimensions for iframe embedding.")
-
-    args = parser.parse_args()
-
-    # Compress the input file if necessary
-    compressed_file = compress_image(args.input_file, max_size_in_mb=50)
-    try:
-        convert_to_my_format(compressed_file, args.output_file, args.quality, args.max_width, args.max_height, args.for_iframe)
-    finally:
-        os.remove(compressed_file)  # Clean up temporary compressed file
+    main()

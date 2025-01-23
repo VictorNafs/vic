@@ -12,7 +12,6 @@ import json
 import io
 import base64
 import re
-import gzip
 
 app = FastAPI()
 
@@ -42,11 +41,14 @@ async def convert_to_vic(file: UploadFile, for_iframe: bool = False):
     """
     Convert an image file to the VIC format with optional compression for large files.
     """
-    if not file.filename.lower().endswith((".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff")):
-        return JSONResponse(status_code=400, content={"error": "Unsupported file format. Supported formats: PNG, JPEG, BMP, GIF, TIFF."})
+    MAX_FILE_SIZE_MB = 100  # Limite de taille augmentée à 100 Mo
+    max_file_size_bytes = MAX_FILE_SIZE_MB * 1024 * 1024
 
-    if file.size == 0:
-        return JSONResponse(status_code=400, content={"error": "The uploaded file is empty."})
+    if file.size > max_file_size_bytes:
+        return JSONResponse(
+            status_code=400,
+            content={"error": f"The file size exceeds the maximum limit of {MAX_FILE_SIZE_MB} MB."},
+        )
 
     with NamedTemporaryFile(delete=False) as temp_file:
         temp_file.write(await file.read())
@@ -54,83 +56,23 @@ async def convert_to_vic(file: UploadFile, for_iframe: bool = False):
 
     try:
         if not is_supported_image(temp_file_path):
-            return JSONResponse(status_code=400, content={"error": "Unsupported or corrupted image format."})
+            return JSONResponse(
+                status_code=400, content={"error": "Unsupported or corrupted image format."}
+            )
 
-        max_file_size_mb = 100  # Increase max file size for processing
-        compressed_path = (
-            compress_image(temp_file_path, max_size_in_mb=max_file_size_mb)
-            if os.path.getsize(temp_file_path) > max_file_size_mb * 1024 * 1024
-            else temp_file_path
-        )
+        compressed_path = compress_image(temp_file_path, max_size_in_mb=MAX_FILE_SIZE_MB)
 
         output_file_path = compressed_path.replace(os.path.splitext(compressed_path)[1], ".vic")
+
         convert_to_my_format(compressed_path, output_file_path, for_iframe=for_iframe)
 
-        # Compress the VIC file with gzip
-        gzip_path = output_file_path + ".gz"
-        with open(output_file_path, "rb") as f_in, gzip.open(gzip_path, "wb") as f_out:
-            f_out.writelines(f_in)
-
-        # Stream the compressed file to the client
-        return FileResponse(gzip_path, media_type="application/gzip", filename="output.vic.gz")
-
+        return FileResponse(output_file_path, media_type="application/octet-stream", filename="output.vic")
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": f"Conversion failed: {str(e)}"})
     finally:
-        # Clean up temporary files
         os.remove(temp_file_path)
-        if 'compressed_path' in locals() and compressed_path != temp_file_path and os.path.exists(compressed_path):
+        if "compressed_path" in locals() and compressed_path != temp_file_path and os.path.exists(compressed_path):
             os.remove(compressed_path)
-        if 'output_file_path' in locals() and os.path.exists(output_file_path):
-            os.remove(output_file_path)
-        if 'gzip_path' in locals() and os.path.exists(gzip_path):
-            os.remove(gzip_path)
-
-def compress_image(input_file, max_size_in_mb=5):
-    """
-    Compress an image to ensure it does not exceed a specified size.
-    """
-    max_size_in_bytes = max_size_in_mb * 1024 * 1024
-    with Image.open(input_file) as img:
-        format = img.format  # Detect original format
-        quality = 85  # Adjust initial quality for compression
-        temp_buffer = io.BytesIO()
-
-        # Resizing extremely large images before compression
-        max_initial_size = 4000
-        original_width, original_height = img.size
-        if original_width > max_initial_size or original_height > max_initial_size:
-            print("Compressing and resizing very large image before processing...")
-            scale_factor = min(max_initial_size / original_width, max_initial_size / original_height)
-            img = img.resize((int(original_width * scale_factor), int(original_height * scale_factor)), Image.LANCZOS)
-
-        # Save based on format with reduced quality for JPEG
-        if format.lower() in ["jpeg", "jpg"]:
-            img.save(temp_buffer, format="JPEG", quality=quality, optimize=True)
-        elif format.lower() == "png":
-            img.save(temp_buffer, format="PNG", optimize=True, compress_level=9)
-        else:
-            img.save(temp_buffer, format=format)
-
-        size_in_bytes = temp_buffer.tell()
-
-        # Iteratively reduce quality for large files
-        while size_in_bytes > max_size_in_bytes and quality > 10:
-            temp_buffer.seek(0)
-            if format.lower() in ["jpeg", "jpg"]:
-                img.save(temp_buffer, format="JPEG", quality=quality)
-            else:
-                img.save(temp_buffer, format=format)
-            size_in_bytes = temp_buffer.tell()
-            quality -= 10
-
-        # Save the compressed image to a temporary file
-        temp_output = NamedTemporaryFile(delete=False, suffix=f".{format.lower()}")
-        temp_output.write(temp_buffer.getvalue())
-        temp_output.close()
-
-        return temp_output.name
-
 
 @app.post("/metadata")
 async def extract_metadata(file: UploadFile):
