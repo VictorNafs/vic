@@ -66,8 +66,62 @@
 <body>
     <div class="loader" id="loader" aria-hidden="true"></div>
     <canvas id="vicCanvas" role="img" aria-label="Visualisation du fichier VIC"></canvas>
+    <script>
+        // Extraction des paramètres de l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const fileUrl = urlParams.get('file');
 
-<script src="/static/js/viewer.js" defer></script>
+        // Récupération des éléments HTML
+        const loader = document.getElementById('loader');
+        const canvas = document.getElementById('vicCanvas');
+        const ctx = canvas.getContext('2d');
 
+        // Afficher le loader
+        const showLoader = () => {
+            loader.style.display = 'block';
+        };
+
+        // Masquer le loader
+        const hideLoader = () => {
+            loader.style.display = 'none';
+        };
+
+        // Charger le fichier VIC
+        const loadVicFile = async (fileUrl) => {
+            showLoader();
+            try {
+                const response = await fetch(fileUrl);
+                if (!response.ok) {
+                    throw new Error('Impossible de charger le fichier VIC.');
+                }
+                const vicData = await response.arrayBuffer();
+                renderVicData(vicData);
+            } catch (error) {
+                console.error('Erreur lors du chargement :', error);
+                alert('Erreur lors du chargement du fichier VIC.');
+            } finally {
+                hideLoader();
+            }
+        };
+
+        // Rendu des données VIC
+        const renderVicData = (vicData) => {
+            // Exemple de rendu arbitraire
+            canvas.width = 800; // Largeur fictive
+            canvas.height = 600; // Hauteur fictive
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color');
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary-color');
+            ctx.font = '20px Arial';
+            ctx.fillText('Aperçu du fichier VIC', 20, 50);
+        };
+
+        // Charger le fichier si une URL est spécifiée
+        if (fileUrl) {
+            loadVicFile(fileUrl);
+        } else {
+            alert('Aucune URL de fichier VIC spécifiée.');
+        }
+    </script>
 </body>
 </html>

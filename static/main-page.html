@@ -61,7 +61,30 @@
     <p>© 2025 VicFile.io. Tous droits réservés.</p>
   </footer>
 
-  <script src="/static/js/main.js" defer></script>
+  <script>
+    const iframe = document.querySelector('iframe[name="content-frame"]');
+    const loader = document.getElementById("loader");
+
+    // Show the loader when navigation starts
+    const links = document.querySelectorAll('nav a');
+    links.forEach(link => {
+      link.addEventListener('click', function () {
+        if (loader) loader.style.display = "flex";
+      });
+    });
+
+    // Hide the loader when iframe finishes loading
+    iframe.addEventListener('load', function () {
+      if (loader) loader.style.display = "none";
+    });
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-6308308780527097",
+      enable_page_level_ads: true
+    });
+  </script>
   
 </body>
 </html>

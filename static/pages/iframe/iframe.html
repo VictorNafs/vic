@@ -60,7 +60,55 @@
 
 </footer>
 
-<script src="/static/js/main.js" defer></script>
+<script defer>
+  document.addEventListener('DOMContentLoaded', () => {
+    const iframeForm = document.getElementById('iframeForm');
+    const iframePreview = document.getElementById('iframePreview');
+    const iframeResult = document.getElementById('iframeResult');
+    const loader = document.getElementById('loader');
+    const urlError = document.getElementById('urlError');
+
+    // Functions to show and hide the loader
+    function showLoader() {
+      if (loader) loader.style.display = "flex";
+    }
+
+    function hideLoader() {
+      if (loader) loader.style.display = "none";
+    }
+
+    // Handle form submission for generating the iframe
+    iframeForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const urlInput = document.getElementById('vicUrl');
+      const url = urlInput.value.trim();
+
+      // Validate the URL format
+      if (!url || !/^https?:\/\/.+\..+/.test(url)) {
+        urlError.style.display = "block"; // Show error if URL is invalid
+        urlInput.focus();
+        return;
+      }
+      urlError.style.display = "none"; // Hide error if URL is valid
+
+      showLoader(); // Show loader when iframe starts loading
+
+      try {
+        iframePreview.src = `/generate-iframe?file_url=${encodeURIComponent(url)}`;
+        iframeResult.style.display = 'block';
+
+        // Hide loader once the iframe is loaded
+        iframePreview.onload = () => {
+          hideLoader();
+        };
+      } catch (error) {
+        alert("Erreur lors de la génération de l'iframe."); // Handle errors
+        hideLoader();
+      }
+    });
+  });
+</script>
 
 </body>
 </html>
