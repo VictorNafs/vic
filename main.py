@@ -12,6 +12,7 @@ import json
 import io
 import base64
 import re
+import gzip
 
 app = FastAPI()
 
@@ -55,7 +56,7 @@ async def convert_to_vic(file: UploadFile, for_iframe: bool = False):
         if not is_supported_image(temp_file_path):
             return JSONResponse(status_code=400, content={"error": "Unsupported or corrupted image format."})
 
-        max_file_size_mb = 5
+        max_file_size_mb = 50  # Increase max file size for processing
         compressed_path = (
             compress_image(temp_file_path, max_size_in_mb=max_file_size_mb)
             if os.path.getsize(temp_file_path) > max_file_size_mb * 1024 * 1024
@@ -63,16 +64,27 @@ async def convert_to_vic(file: UploadFile, for_iframe: bool = False):
         )
 
         output_file_path = compressed_path.replace(os.path.splitext(compressed_path)[1], ".vic")
-
         convert_to_my_format(compressed_path, output_file_path, for_iframe=for_iframe)
 
-        return FileResponse(output_file_path, media_type="application/octet-stream", filename="output.vic")
+        # Compress the VIC file with gzip
+        gzip_path = output_file_path + ".gz"
+        with open(output_file_path, "rb") as f_in, gzip.open(gzip_path, "wb") as f_out:
+            f_out.writelines(f_in)
+
+        # Stream the compressed file to the client
+        return FileResponse(gzip_path, media_type="application/gzip", filename="output.vic.gz")
+
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": f"Conversion failed: {str(e)}"})
     finally:
+        # Clean up temporary files
         os.remove(temp_file_path)
         if 'compressed_path' in locals() and compressed_path != temp_file_path and os.path.exists(compressed_path):
             os.remove(compressed_path)
+        if 'output_file_path' in locals() and os.path.exists(output_file_path):
+            os.remove(output_file_path)
+        if 'gzip_path' in locals() and os.path.exists(gzip_path):
+            os.remove(gzip_path)
 
 @app.post("/metadata")
 async def extract_metadata(file: UploadFile):
