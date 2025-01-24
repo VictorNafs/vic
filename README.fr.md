@@ -18,7 +18,7 @@ Les fichiers `.vic` sont conçus pour résoudre des problèmes courants rencontr
 - **Redimensionnement Adaptatif** :
   - Les images `.vic` s'adaptent automatiquement à la largeur des écrans ou des iframes, que ce soit sur mobile, tablette ou ordinateur.
 - **Défilement Intégré** :
-  - Un **défilement vertical** est ajouté pour afficher l'ensemble de la capture d'écran, quelle que soit sa hauteur.
+  - Un **défilement vertical** (scroll) est ajouté pour afficher l'ensemble de la capture d'écran, quelle que soit sa hauteur.
 - **Dimensions Flexibles** :
   - Les dimensions peuvent être contrôlées via une iframe.
 
