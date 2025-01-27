@@ -117,71 +117,7 @@
 
 </footer>
 
-<script defer>
-  document.addEventListener('DOMContentLoaded', () => {
-    const convertForm = document.getElementById('convertForm');
-    const convertResult = document.getElementById('convertResult');
-    const vicDownloadLink = document.getElementById('vicDownloadLink');
-    const fileError = document.getElementById('fileError');
-
-    function showLoader() {
-      const loader = document.getElementById("loader");
-      if (loader) loader.style.display = "flex";
-    }
-
-    function hideLoader() {
-      const loader = document.getElementById("loader");
-      if (loader) loader.style.display = "none";
-    }
-
-    convertForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const fileInput = document.getElementById('imageFile');
-      if (!fileInput.files.length) {
-        fileError.style.display = "block";
-        fileInput.focus();
-        return;
-      }
-
-      const file = fileInput.files[0];
-      const allowedExtensions = [".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff"];
-      const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-
-      if (!allowedExtensions.includes(fileExtension)) {
-        fileError.textContent = "Format non supporté. Formats acceptés : PNG, JPEG, BMP, GIF, TIFF.";
-        fileError.style.display = "block";
-        fileInput.focus();
-        return;
-      }
-
-      fileError.style.display = "none";
-      showLoader();
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      try {
-        const response = await fetch('/convert', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (response.ok) {
-          const blob = await response.blob();
-          vicDownloadLink.href = URL.createObjectURL(blob);
-          convertResult.style.display = 'block';
-        } else {
-          alert('Erreur lors de la conversion.');
-        }
-      } catch (error) {
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      } finally {
-        hideLoader();
-      }
-    });
-  });
-</script>
+<script src="/static/js/script.js" defer></script>
 
 </body>
 </html>

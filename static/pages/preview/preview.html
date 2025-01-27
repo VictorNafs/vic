@@ -55,65 +55,7 @@
 
   </footer>
 
-  <script defer>
-    document.addEventListener('DOMContentLoaded', () => {
-      const previewForm = document.getElementById('previewForm');
-      const previewContainer = document.getElementById('previewContainer');
-      const loader = document.getElementById('loader');
-  
-      // Afficher le loader
-      function showLoader() {
-        if (loader) loader.style.display = "flex";
-      }
-  
-      // Masquer le loader
-      function hideLoader() {
-        if (loader) loader.style.display = "none";
-      }
-  
-      // Gestion de la prévisualisation
-      previewForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); // Empêche l'envoi classique du formulaire
-        showLoader(); // Affiche le loader
-  
-        const fileInput = document.getElementById('vicPreviewFile');
-        const file = fileInput.files[0];
-        
-        if (!file) {
-          alert("Veuillez sélectionner un fichier à prévisualiser.");
-          hideLoader();
-          return;
-        }
-  
-        const formData = new FormData();
-        formData.append('file', file);
-  
-        try {
-          const response = await fetch('/preview', {
-            method: 'POST',
-            body: formData,
-          });
-  
-          if (response.ok) {
-            const blob = await response.blob();
-            const img = document.createElement('img');
-            img.src = URL.createObjectURL(blob);
-            img.loading = "lazy"; // Active le lazy loading
-            img.alt = "Prévisualisation du fichier VIC";
-  
-            previewContainer.innerHTML = ''; // Vide le conteneur avant d'ajouter une nouvelle image
-            previewContainer.appendChild(img);
-          } else {
-            alert('Erreur lors de la prévisualisation.');
-          }
-        } catch (error) {
-          alert("Une erreur s'est produite lors de la prévisualisation.");
-        } finally {
-          hideLoader(); // Masque le loader après traitement
-        }
-      });
-    });
-  </script>
+  <script src="/static/js/script.js" defer></script>
   
 </body>
 </html>
