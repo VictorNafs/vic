@@ -5,7 +5,7 @@
   "icons": [
     {
       "src": "/static/images/logovic_small.png",
-      "sizes": "72x72",
+      "sizes": "72x60",
       "type": "image/png"
     },
     {
@@ -15,7 +15,7 @@
     },
     {
       "src": "/static/images/logovic_large.png",
-      "sizes": "512x512",
+      "sizes": "512x428",
       "type": "image/png"
     }
   ],
