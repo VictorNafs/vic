@@ -15,25 +15,19 @@ def get_compression_level(file_size):
     return 95  # Haute qualité
 
 def compress_input_image(input_file_path, temp_file_path, max_width):
-    """ Compresse et redimensionne l'image en entrée si nécessaire. """
+    """ Compresse et redimensionne l'image en entrée si nécessaire en flux """
     with Image.open(input_file_path) as img:
         img = img.convert("RGB")  # Suppression des canaux alpha inutiles
         
-        # Utiliser thumbnail pour un redimensionnement plus efficace en mémoire
-        img.thumbnail((max_width, img.size[1]))
+        # Réduction efficace en mémoire
+        reduction_factor = max(img.size[0] // max_width, 1)
+        img = img.reduce(reduction_factor)
         
         # Déterminer la compression dynamique
         compression_quality = get_compression_level(os.path.getsize(input_file_path))
-        img.save(temp_file_path, format="JPEG", quality=compression_quality, optimize=True)
-
-def split_image(img, max_segment_height=3000):
-    """ Divise une image en segments plus petits pour économiser la RAM """
-    segments = []
-    width, height = img.size
-    for y in range(0, height, max_segment_height):
-        segment = img.crop((0, y, width, min(y + max_segment_height, height)))
-        segments.append(segment)
-    return segments
+        
+        # Écriture directe dans un fichier sans stocker en RAM
+        img.save(temp_file_path, format="JPEG", quality=compression_quality, optimize=True, progressive=True)
 
 def convert_to_my_format(input_file, output_file, max_width=2000, max_height=2000, for_iframe=False):
     """ Convertit une image en .VIC avec optimisation mémoire """
@@ -54,15 +48,8 @@ def convert_to_my_format(input_file, output_file, max_width=2000, max_height=200
             new_height = int(original_height * scale_factor)
             img = img.resize((new_width, new_height), Image.LANCZOS)
             
-            if new_height > 5000:
-                print("Splitting large image to reduce memory usage...")
-                img_segments = split_image(img)
-            else:
-                img_segments = [img]
-            
             png_buffer = io.BytesIO()
-            for segment in img_segments:
-                segment.save(png_buffer, format="PNG", optimize=True, compress_level=9)
+            img.save(png_buffer, format="PNG", optimize=True, compress_level=9)
             img_data = png_buffer.getvalue()
             png_buffer.close()
             
