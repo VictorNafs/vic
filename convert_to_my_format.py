@@ -59,7 +59,7 @@ def convert_to_my_format(input_file, output_file, max_width=2000, max_height=200
             "type": "full_page_screenshot" if is_full_page_screenshot else "regular_image",
             "ratio": round(ratio, 2),
             "dimensions": {"width": new_width, "height": new_height},
-            "format": "PNG"
+            "format": img.format  # Détection dynamique du format
         }
         metadata_json = json.dumps(metadata, separators=(',', ':')).encode('utf-8')
         
