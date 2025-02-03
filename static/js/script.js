@@ -4,9 +4,6 @@ const loader = document.getElementById("loader");
 const installButton = document.getElementById("install-button");
 let deferredPrompt = null;
 
-console.log("JavaScript est bien chargé !");
-alert("JavaScript fonctionne !");
-
 // Gestion de l'affichage du loader lors de la navigation entre les pages
 if (iframe && loader) {
   const links = document.querySelectorAll('nav a');
@@ -113,37 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
           deferredPrompt = null;
         });
       });
-    });
-  }
-
-  // Gestion de l'extraction des métadonnées
-  const metadataForm = document.getElementById('metadataForm');
-  const metadataResult = document.getElementById('metadataResult');
-  if (metadataForm) {
-    metadataForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fileInput = document.getElementById('vicFile');
-      if (!fileInput || !fileInput.files.length) {
-        fileError.style.display = "block";
-        fileInput.focus();
-        return;
-      }
-      fileError.style.display = "none";
-      if (loader) loader.style.display = "flex";
-      const formData = new FormData();
-      formData.append('file', fileInput.files[0]);
-      try {
-        const response = await fetchWithTimeout('/metadata', { method: 'POST', body: formData });
-        if (response && response.ok) {
-          const data = await response.json();
-          metadataResult.textContent = JSON.stringify(data.metadata, null, 2);
-          metadataResult.style.display = 'block';
-        } else {
-          alert('Erreur lors de l\'extraction des métadonnées.');
-        }
-      } finally {
-        if (loader) loader.style.display = "none";
-      }
     });
   }
 });
