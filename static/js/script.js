@@ -14,7 +14,6 @@ if (iframe && loader) {
   });
 
   iframe.addEventListener('load', () => {
-    console.log("Iframe chargé !");
     loader.style.display = "none";
   });
 }
@@ -25,69 +24,56 @@ if (iframe && loader) {
   enable_page_level_ads: true,
 });
 
-// Fonction Fetch avec Timeout pour éviter les blocages
-async function fetchWithTimeout(resource, options = {}, timeout = 10000) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-  
-  try {
-    const response = await fetch(resource, { ...options, signal: controller.signal });
-    clearTimeout(id);
-    return response;
-  } catch (error) {
-    console.error("Erreur de fetch :", error);
-    alert("Erreur réseau ou serveur. Vérifiez votre connexion.");
-    return null;
-  }
-}
-
 // Gestion du formulaire de conversion
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("DOM chargé !");
-
   const convertForm = document.getElementById('convertForm');
   const convertResult = document.getElementById('convertResult');
   const vicDownloadLink = document.getElementById('vicDownloadLink');
   const fileError = document.getElementById('fileError');
-  const fileInput = document.getElementById('imageFile');
-
-  if (fileInput) {
-    fileInput.addEventListener('change', () => {
-      console.log("Fichier sélectionné :", fileInput.files[0]?.name);
-    });
-  }
 
   if (convertForm) {
     convertForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      console.log("Le formulaire de conversion a bien été soumis !");
 
+      const fileInput = document.getElementById('imageFile');
       if (!fileInput || !fileInput.files.length) {
         fileError.style.display = "block";
         fileInput?.focus();
         return;
       }
 
-      fileError.style.display = "none";
-      if (loader) {
-        loader.style.display = "flex";
-        setTimeout(() => {
-          loader.style.display = "none";
-        }, 10000);
+      const file = fileInput.files[0];
+      const allowedExtensions = [".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff"];
+      const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+
+      if (!allowedExtensions.includes(fileExtension)) {
+        fileError.textContent = "Format non supporté. Formats acceptés : PNG, JPEG, BMP, GIF, TIFF.";
+        fileError.style.display = "block";
+        fileInput.focus();
+        return;
       }
 
+      fileError.style.display = "none";
+      if (loader) loader.style.display = "flex";
+
       const formData = new FormData();
-      formData.append('file', fileInput.files[0]);
+      formData.append('file', file);
 
       try {
-        const response = await fetchWithTimeout('/convert', { method: 'POST', body: formData });
-        if (response && response.ok) {
+        const response = await fetch('/convert', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
           const blob = await response.blob();
           vicDownloadLink.href = URL.createObjectURL(blob);
           convertResult.style.display = 'block';
         } else {
           alert('Erreur lors de la conversion.');
         }
+      } catch (error) {
+        alert('Une erreur s\'est produite. Veuillez réessayer.');
       } finally {
         if (loader) loader.style.display = "none";
       }
@@ -110,6 +96,133 @@ document.addEventListener('DOMContentLoaded', () => {
           deferredPrompt = null;
         });
       });
+    });
+  }
+
+  // Gestion de la génération d'iframe
+  const iframeForm = document.getElementById('iframeForm');
+  const iframePreview = document.getElementById('iframePreview');
+  const iframeResult = document.getElementById('iframeResult');
+  const urlError = document.getElementById('urlError');
+
+  if (iframeForm) {
+    iframeForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const urlInput = document.getElementById('vicUrl');
+      const url = urlInput.value.trim();
+
+      // Valider le format de l'URL
+      if (!url || !/^https?:\/\/.+\..+/.test(url)) {
+        urlError.style.display = "block"; // Afficher une erreur si l'URL est invalide
+        urlInput.focus();
+        return;
+      }
+      urlError.style.display = "none"; // Masquer l'erreur si l'URL est valide
+
+      if (loader) loader.style.display = "flex"; // Afficher le loader
+
+      try {
+        iframePreview.src = `/generate-iframe?file_url=${encodeURIComponent(url)}`;
+        iframeResult.style.display = 'block';
+
+        // Masquer le loader une fois l'iframe chargé
+        iframePreview.onload = () => {
+          if (loader) loader.style.display = "none";
+        };
+      } catch (error) {
+        alert("Erreur lors de la génération de l'iframe."); // Gérer les erreurs
+        if (loader) loader.style.display = "none";
+      }
+    });
+  }
+
+  // Gestion de l'extraction des métadonnées
+  const metadataForm = document.getElementById('metadataForm');
+  const metadataResult = document.getElementById('metadataResult');
+
+  if (metadataForm) {
+    metadataForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fileInput = document.getElementById('vicFile');
+      if (!fileInput || !fileInput.files.length) {
+        fileError.style.display = "block";
+        fileInput.focus();
+        return;
+      }
+      fileError.style.display = "none";
+
+      if (loader) loader.style.display = "flex";
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      try {
+        const response = await fetch('/metadata', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          metadataResult.textContent = JSON.stringify(data.metadata, null, 2);
+          metadataResult.style.display = 'block';
+        } else {
+          alert('Erreur lors de l\'extraction des métadonnées.');
+        }
+      } catch (error) {
+        alert("Une erreur s'est produite lors de l'extraction des métadonnées.");
+      } finally {
+        if (loader) loader.style.display = "none";
+      }
+    });
+  }
+
+  // Gestion de la prévisualisation des fichiers VIC
+  const previewForm = document.getElementById('previewForm');
+  const previewContainer = document.getElementById('previewContainer');
+
+  if (previewForm) {
+    previewForm.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Empêche l'envoi classique du formulaire
+      if (loader) loader.style.display = "flex"; // Affiche le loader
+
+      const fileInput = document.getElementById('vicPreviewFile');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Veuillez sélectionner un fichier à prévisualiser.");
+        if (loader) loader.style.display = "none";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('/preview', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const img = document.createElement('img');
+          img.src = URL.createObjectURL(blob);
+          img.loading = "lazy"; // Active le lazy loading
+          img.alt = "Prévisualisation du fichier VIC";
+
+          previewContainer.innerHTML = ''; // Vide le conteneur avant d'ajouter une nouvelle image
+          previewContainer.appendChild(img);
+        } else {
+          alert('Erreur lors de la prévisualisation.');
+        }
+      } catch (error) {
+        alert("Une erreur s'est produite lors de la prévisualisation.");
+      } finally {
+        if (loader) loader.style.display = "none"; // Masque le loader après traitement
+      }
     });
   }
 });
