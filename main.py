@@ -2,10 +2,11 @@ import os
 from fastapi import FastAPI, File, UploadFile, Query, Header
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.exceptions import HTTPException
+from fastapi import Header
+from fastapi import BackgroundTasks
 from tempfile import NamedTemporaryFile
 from convert_to_my_format import convert_to_my_format
-from fastapi.staticfiles import StaticFiles
-from fastapi.exceptions import HTTPException
 import requests
 import validators
 import struct
@@ -42,35 +43,36 @@ async def serve_service_worker():
     """
     return FileResponse(os.path.join(STATIC_DIR, "service-worker.js"))
 
-from fastapi import Header
-
 @app.post("/convert")
-async def convert_to_vic(file: UploadFile, for_iframe: bool = False):
+async def convert_to_vic(file: UploadFile, background_tasks: BackgroundTasks, for_iframe: bool = False):
     """
-    Convert a PNG file to the VIC format.
+    Convertit une image au format VIC et retourne le fichier converti.
     """
-    if not file.filename.endswith(".png"):
-        return JSONResponse(status_code=400, content={"error": "Only PNG files are supported."})
-
-    if file.size == 0:
-        return JSONResponse(status_code=400, content={"error": "The uploaded file is empty."})
-
-    with NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
-        temp_file.write(await file.read())
-        temp_file_path = temp_file.name
-
-    output_file_path = temp_file_path.replace(".png", ".vic")
-
     try:
-        # Pass the `for_iframe` argument to the conversion function if needed
+        # Vérifier l'extension du fichier
+        ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff"}
+        if not any(file.filename.lower().endswith(ext) for ext in ALLOWED_EXTENSIONS):
+            return JSONResponse(status_code=400, content={"error": "Format non supporté."})
+
+        # Créer un fichier temporaire pour stocker l'image
+        with NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
+            temp_file.write(await file.read())
+            temp_file_path = temp_file.name
+
+        output_file_path = temp_file_path.replace(".png", ".vic")
+
+        # Convertir le fichier
         convert_to_my_format(temp_file_path, output_file_path, for_iframe=for_iframe)
 
-        # Return the VIC file as a response
+        # Ajouter une tâche pour supprimer le fichier après envoi
+        background_tasks.add_task(lambda: os.remove(output_file_path) if os.path.exists(output_file_path) else None)
+        background_tasks.add_task(lambda: os.remove(temp_file_path) if os.path.exists(temp_file_path) else None)
+
         return FileResponse(output_file_path, media_type="application/octet-stream", filename="output.vic")
+
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": f"Conversion failed: {str(e)}"})
-    finally:
-        os.remove(temp_file_path)
+        return JSONResponse(status_code=500, content={"error": f"Erreur serveur : {str(e)}"})
+
 
 @app.post("/metadata")
 async def extract_metadata(file: UploadFile):

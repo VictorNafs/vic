@@ -77,9 +77,13 @@ def convert_to_my_format(input_file, output_file, max_width=2000, max_height=200
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
     finally:
-        if os.path.exists(temp_compressed_file):
-            os.remove(temp_compressed_file)
+        try:
+            if temp_compressed_file and os.path.exists(temp_compressed_file):
+                os.remove(temp_compressed_file)
+        except Exception as e:
+            print(f"⚠️ Erreur suppression fichier temporaire : {e}")
         gc.collect()
+
 
 def main():
     parser = argparse.ArgumentParser(description="Convert an image to VIC format.")
